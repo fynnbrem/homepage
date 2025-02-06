@@ -1,6 +1,6 @@
 "use client"
-import {useEffect, useState} from "react";
-import {useEventListener} from "usehooks-ts";
+import {RefObject, useEffect, useRef, useState} from "react";
+import {useEventListener, useHover} from "usehooks-ts";
 import {Vector2} from "math.gl";
 
 
@@ -8,14 +8,14 @@ type Ball = { // TODO: Update DocStrings to use the proper terminology.
     pos: Vector2,
     vel: Vector2 | null,
     mass: number,
-    radius: number | null,
+    radius: number,
 }
 
 
 const gravity = 10
 
-const tps = 60
-const interval = Math.round(1000 / 60)
+const tps = 1
+const interval = Math.round(1000 / tps)
 
 const mainBall: Ball = {
     pos: new Vector2(0, 0),
@@ -26,45 +26,58 @@ const mainBall: Ball = {
 
 const mouseBall: Ball = {
     pos: new Vector2(0, 0),
-    vel: new Vector2(0, 0),
-    mass: 10,
-    radius: null
+    vel: null,
+    mass: 10000,
+    radius: 0
 }
 
-
 export default function Home() {
-    const [mousePos, setMousePos] = useState([0, 0])
+    console.log(mainBall)
+    const mousePos = useRef({x: 0, y: 0})
+
+    const [ballPos, setBallPos] = useState({x: 0, y: 0})
+
+    const canvasRef: RefObject<HTMLDivElement> = useRef(null!)
+    const mouseBallActive = useHover(canvasRef) // TODO: Use this to disable mouse-gravity when inactive.
+
+    function updateBall() {
+        setBallPos({x: mainBall.pos.x, y: mainBall.pos.y})
+    }
+
+    function updateMouseBall() {
+        mouseBall.pos.x = mousePos.current.x
+        mouseBall.pos.y = mousePos.current.y
+    }
 
     useEffect(() => {
         const intervalTimer = setInterval(() => {
+            updateMouseBall()
             moveBalls([mainBall, mouseBall]);
+            updateBall()
         }, interval);
 
         return () => clearInterval(intervalTimer);
     }, []);
 
-    const mouseMass = 10
-    const radius = 25
-
 
     useEventListener("mousemove", (e: MouseEvent) => {
-        setMousePos([e.clientX, e.clientY]);
+        mousePos.current.x = e.clientX
+        mousePos.current.y = e.clientY
     })
 
-    let [x, y] = [mousePos[0] - radius, mousePos[1] - radius]
-    x = Math.max(0, Math.min(x, window.innerWidth - radius * 2));
-    y = Math.max(0, Math.min(y, window.innerHeight - radius * 2));
 
     return (
-        <div style={{
-            position: "absolute",
-            left: x,
-            top: y,
-            width: radius * 2,
-            height: radius * 2,
-            background: "blue",
-            borderRadius: "50%"
-        }}></div>
+        <div style={{width: "100vw", height: "100vh", background: "#171717"}} ref={canvasRef}>
+            <div style={{
+                position: "absolute",
+                left: ballPos.x - mainBall.radius,
+                top: ballPos.y - mainBall.radius,
+                width: mainBall.radius * 2,
+                height: mainBall.radius * 2,
+                background: "blue",
+                borderRadius: "50%"
+            }}></div>
+        </div>
     );
 }
 
@@ -72,8 +85,8 @@ function moveBalls(balls: Ball[]): void {
     balls.forEach(
         applyGravity
     )
-    for (let i = 0; i++; i < balls.length) {
-        for (let j = 0; j++; j < i) { // Limit the iterations to `i - 1` as to only include unique and unequal pairs.
+    for (let i = 0; i < balls.length; i++) {
+        for (let j = 0; j < i; j++) { // Limit the iterations to `i - 1` as to only include unique and unequal pairs.
             applyForce(balls[i], balls[j])
         }
     }
@@ -102,7 +115,6 @@ function applyForce(ball1: Ball, ball2: Ball): void {
         const acc2 = force.scale(1 / ball2.mass).negate()
         ball2.vel.add(acc2)
     }
-
 }
 
 /**Modifies the velocity of the MassPoint in accordance with the global gravity.*/
@@ -118,7 +130,12 @@ function applyGravity(ball: Ball) {
  *  The vector points from `ball1` to `ball2`.*/
 function getForce(ball1: Ball, ball2: Ball): Vector2 {
     const distance = ball1.pos.distance(ball2.pos);
-    const forceScale = (ball1.mass * ball2.mass) / (distance ** 3)
+    let forceScale: number
+    if (distance !== 0) {
+        forceScale = (ball1.mass * ball2.mass) / (distance ** 3)
+    } else {
+        forceScale = 0
+    }
     // Square scaling by the nature and an extra division by the distance to normalize the vector delta.
     return ball2.pos.clone().subtract(ball1.pos).scale(forceScale)
 }
