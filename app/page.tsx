@@ -11,14 +11,16 @@ type Ball = { // TODO: Update DocStrings to use the proper terminology.
     radius: number,
 }
 
+const arenaHeight = 200
+const arenaWidth = 200
 
 const gravity = 10
 
-const tps = 1
+const tps = 5
 const interval = Math.round(1000 / tps)
 
 const mainBall: Ball = {
-    pos: new Vector2(0, 0),
+    pos: new Vector2(100, 50),
     vel: new Vector2(0, 0),
     mass: 20,
     radius: 25
@@ -27,18 +29,19 @@ const mainBall: Ball = {
 const mouseBall: Ball = {
     pos: new Vector2(0, 0),
     vel: null,
-    mass: 10000,
+    mass: 1000,
     radius: 0
 }
 
 export default function Home() {
-    console.log(mainBall)
     const mousePos = useRef({x: 0, y: 0})
 
     const [ballPos, setBallPos] = useState({x: 0, y: 0})
 
     const canvasRef: RefObject<HTMLDivElement> = useRef(null!)
     const mouseBallActive = useHover(canvasRef) // TODO: Use this to disable mouse-gravity when inactive.
+    const mouseBallActiveRef = useRef(mouseBallActive)
+    mouseBallActiveRef.current = mouseBallActive
 
     function updateBall() {
         setBallPos({x: mainBall.pos.x, y: mainBall.pos.y})
@@ -52,7 +55,14 @@ export default function Home() {
     useEffect(() => {
         const intervalTimer = setInterval(() => {
             updateMouseBall()
-            moveBalls([mainBall, mouseBall]);
+
+            let balls: Ball[]
+            if (mouseBallActiveRef.current) {
+                balls = [mouseBall, mainBall]
+            } else {
+                balls = [mainBall]
+            }
+            moveBalls(balls);
             updateBall()
         }, interval);
 
@@ -67,7 +77,7 @@ export default function Home() {
 
 
     return (
-        <div style={{width: "100vw", height: "100vh", background: "#171717"}} ref={canvasRef}>
+        <div style={{width: arenaWidth, height: arenaHeight, background: "#171717"}} ref={canvasRef}>
             <div style={{
                 position: "absolute",
                 left: ballPos.x - mainBall.radius,
@@ -91,18 +101,91 @@ function moveBalls(balls: Ball[]): void {
         }
     }
 
-    balls.forEach(applyVelocity)
+    balls.forEach((b) => moveInBox(b, [0, arenaWidth, 0, arenaHeight]))
 
 }
 
 
-/** Modifies the position of the MassPoint in accordance with its current velocity.*/
-function applyVelocity(ball: Ball): void {
-    if (ball.vel) {
-        ball.pos.add(ball.vel)
+/** Moves the ball within the `box` so that it does not go above its boundaries.
+ *  The movement is generated from the ball's `.vel`.
+ * @param ball
+ *  The ball to move.
+ * @param box
+ *  The box in which the ball is constrained.
+ *  Must be the following coordinates: `[leftX, rightX, topY, bottomY]`
+ *  */
+function moveInBox(ball: Ball, box: [number, number, number, number]): void {
+    if (!ball.vel) {
+        return
     }
+    const [left, right, top, bottom] = box
+
+    let xMaxT = 1
+    let yMaxT = 1
+
+    const vel = ball.vel
+    const pos = ball.pos
+    const radius = ball.radius
+
+    const targetPos = pos.clone().add(vel)
+    console.log("From pos")
+    console.log(pos)
+    console.log("To pos")
+    console.log(targetPos)
+    let xFinal = targetPos.x
+    let yFinal = targetPos.y
+
+    if (targetPos.x - radius < left) {
+        // Clamp left.
+        xMaxT = Math.abs((targetPos.x - radius - left) / vel.x)
+        xFinal = left + radius
+        // TODO: Using the absolute value might cause the ball to accelerate even further out of bounds
+        //  if it already is out of bounds at the beginning (e.g. when resizing the window).
+    } else if (targetPos.x + radius > right) {
+        // Clamp right.
+        xMaxT = Math.abs((right - targetPos.x - radius) / vel.x)
+        xFinal = right - radius
+    }
+    if (targetPos.y - radius < top) {
+        // Clamp top.
+        yMaxT = Math.abs((targetPos.y - radius - left) / vel.y)
+        yFinal = top + radius
+    } else if (targetPos.y + radius > bottom) {
+        // Clamp bottom.
+        console.log("clamp bottom")
+        yMaxT = Math.abs((right - targetPos.y - radius) / vel.y)
+        yFinal = bottom - radius
+        console.log(yMaxT)
+    }
+    const maxT = Math.min(yMaxT, xMaxT)
+
+    // TODO: Docs
+    if (maxT !== 1) {
+        if (xMaxT < yMaxT) {
+            // x-blocked.
+            ball.pos.y = pos.y + vel.y * maxT
+            ball.pos.x = xFinal
+            ball.vel.x = 0
+        } else if (yMaxT < xMaxT) {
+            // y-blocked.
+            console.log("y-blocked")
+            ball.pos.x = pos.x + vel.x * maxT
+            ball.pos.y = yFinal
+            ball.vel.y = 0
+        } else if (yMaxT === xMaxT) {
+            // Both blocked.
+            ball.pos.add(ball.vel.scale(maxT))
+            ball.vel.x = 0
+            ball.vel.y = 0
+        }
+    } else {
+        ball.pos = targetPos
+    }
+    console.log("Final pos")
+    console.log(ball.pos)
 
 }
+
 
 /** Modifies the velocity of both MassPoints in accordance to the force generated between them.*/
 function applyForce(ball1: Ball, ball2: Ball): void {
