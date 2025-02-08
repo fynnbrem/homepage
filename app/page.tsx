@@ -39,7 +39,7 @@ export default function Home() {
     const [ballPos, setBallPos] = useState({x: 0, y: 0})
 
     const canvasRef: RefObject<HTMLDivElement> = useRef(null!)
-    const mouseBallActive = useHover(canvasRef)
+    const mouseBallActive = useHover(canvasRef) // TODO: Sometimes the mouse gravity doesn't seem to be active.
     const mouseBallActiveRef = useRef(mouseBallActive)
     mouseBallActiveRef.current = mouseBallActive
 
@@ -176,13 +176,18 @@ function applyGravity(ball: Ball) {
 /** Return the gravitational force between the two balls, determined by their distance and mass.
  *  The vector points from `ball1` to `ball2`.*/
 function getForce(ball1: Ball, ball2: Ball): Vector2 {
-    const distance = ball1.pos.distance(ball2.pos);
+    let distance = ball1.pos.distance(ball2.pos);
     let forceScale: number
+
     if (distance !== 0) {
+        distance = Math.max(5, distance)
+        // Clamp the distance to a minimum of 5 to prevent excessive acceleration
+        // (Happens when colliding with the mouse at it has no radius).
         forceScale = (ball1.mass * ball2.mass) / (distance ** 3)
+        // ↑ Square scaling by the nature and an extra division by the distance to normalize the vector delta.
+        console.log(distance)
     } else {
         forceScale = 0
     }
-    // Square scaling by the nature and an extra division by the distance to normalize the vector delta.
     return ball2.pos.clone().subtract(ball1.pos).scale(forceScale)
 }
