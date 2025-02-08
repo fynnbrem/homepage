@@ -4,32 +4,32 @@ import {useEventListener, useHover} from "usehooks-ts";
 import {Vector2} from "math.gl";
 
 
-type Ball = { // TODO: Update DocStrings to use the proper terminology.
+type Ball = {
     pos: Vector2,
     vel: Vector2 | null,
     mass: number,
     radius: number,
 }
 
-const arenaHeight = 200
-const arenaWidth = 200
+const arenaHeight = 500
+const arenaWidth = 500
 
-const gravity = 10
+const gravity = 5
 
-const tps = 5
+const tps = 60
 const interval = Math.round(1000 / tps)
 
 const mainBall: Ball = {
     pos: new Vector2(100, 50),
     vel: new Vector2(0, 0),
-    mass: 20,
+    mass: 100,
     radius: 25
 }
 
 const mouseBall: Ball = {
     pos: new Vector2(0, 0),
     vel: null,
-    mass: 1000,
+    mass: 5000,
     radius: 0
 }
 
@@ -39,7 +39,7 @@ export default function Home() {
     const [ballPos, setBallPos] = useState({x: 0, y: 0})
 
     const canvasRef: RefObject<HTMLDivElement> = useRef(null!)
-    const mouseBallActive = useHover(canvasRef) // TODO: Use this to disable mouse-gravity when inactive.
+    const mouseBallActive = useHover(canvasRef)
     const mouseBallActiveRef = useRef(mouseBallActive)
     mouseBallActiveRef.current = mouseBallActive
 
@@ -120,74 +120,38 @@ function moveInBox(ball: Ball, box: [number, number, number, number]): void {
     }
     const [left, right, top, bottom] = box
 
-    let xMaxT = 1
-    let yMaxT = 1
-
     const vel = ball.vel
     const pos = ball.pos
     const radius = ball.radius
 
     const targetPos = pos.clone().add(vel)
-    console.log("From pos")
-    console.log(pos)
-    console.log("To pos")
-    console.log(targetPos)
-    let xFinal = targetPos.x
-    let yFinal = targetPos.y
 
     if (targetPos.x - radius < left) {
         // Clamp left.
-        xMaxT = Math.abs((targetPos.x - radius - left) / vel.x)
-        xFinal = left + radius
-        // TODO: Using the absolute value might cause the ball to accelerate even further out of bounds
-        //  if it already is out of bounds at the beginning (e.g. when resizing the window).
+        ball.pos.x = left + radius
+        ball.vel.x = 0
     } else if (targetPos.x + radius > right) {
         // Clamp right.
-        xMaxT = Math.abs((right - targetPos.x - radius) / vel.x)
-        xFinal = right - radius
+        ball.pos.x = right - radius
+        ball.vel.x = 0
+    } else {
+        ball.pos.x = targetPos.x
     }
     if (targetPos.y - radius < top) {
         // Clamp top.
-        yMaxT = Math.abs((targetPos.y - radius - left) / vel.y)
-        yFinal = top + radius
+        ball.pos.y = top + radius
+        ball.vel.y = 0
     } else if (targetPos.y + radius > bottom) {
         // Clamp bottom.
-        console.log("clamp bottom")
-        yMaxT = Math.abs((right - targetPos.y - radius) / vel.y)
-        yFinal = bottom - radius
-        console.log(yMaxT)
-    }
-    const maxT = Math.min(yMaxT, xMaxT)
-
-    // TODO: Docs
-    if (maxT !== 1) {
-        if (xMaxT < yMaxT) {
-            // x-blocked.
-            ball.pos.y = pos.y + vel.y * maxT
-            ball.pos.x = xFinal
-            ball.vel.x = 0
-        } else if (yMaxT < xMaxT) {
-            // y-blocked.
-            console.log("y-blocked")
-            ball.pos.x = pos.x + vel.x * maxT
-            ball.pos.y = yFinal
-            ball.vel.y = 0
-        } else if (yMaxT === xMaxT) {
-            // Both blocked.
-            ball.pos.add(ball.vel.scale(maxT))
-            ball.vel.x = 0
-            ball.vel.y = 0
-        }
+        ball.pos.y = bottom - radius
+        ball.vel.y = 0
     } else {
-        ball.pos = targetPos
+        ball.pos.y = targetPos.y
     }
-    console.log("Final pos")
-    console.log(ball.pos)
-
 }
 
 
-/** Modifies the velocity of both MassPoints in accordance to the force generated between them.*/
+/** Modifies the velocity of both balls in accordance to the force generated between them.*/
 function applyForce(ball1: Ball, ball2: Ball): void {
     const force = getForce(ball1, ball2)
     if (ball1.vel) {
@@ -200,7 +164,7 @@ function applyForce(ball1: Ball, ball2: Ball): void {
     }
 }
 
-/**Modifies the velocity of the MassPoint in accordance with the global gravity.*/
+/**Modifies the velocity of the ball in accordance with the global gravity.*/
 function applyGravity(ball: Ball) {
     if (ball.vel) {
         ball.vel.y = ball.vel.y + (gravity / ball.mass)
@@ -209,7 +173,7 @@ function applyGravity(ball: Ball) {
 }
 
 
-/** Return the gravitational force between the two MassPoints, determined by their distance and mass.
+/** Return the gravitational force between the two balls, determined by their distance and mass.
  *  The vector points from `ball1` to `ball2`.*/
 function getForce(ball1: Ball, ball2: Ball): Vector2 {
     const distance = ball1.pos.distance(ball2.pos);
