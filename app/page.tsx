@@ -1,77 +1,77 @@
-"use client";
-import React, { RefObject, useEffect, useRef, useState } from "react";
-import { useEventListener, useHover } from "usehooks-ts";
-import { Vector2 } from "math.gl";
+"use client"
+import React, { RefObject, useEffect, useRef, useState } from "react"
+import { Vector2 } from "math.gl"
 
 type Ball = {
-    pos: Vector2;
-    vel: Vector2 | null;
-    mass: number;
-    radius: number;
-};
+    pos: Vector2
+    vel: Vector2 | null
+    mass: number
+    radius: number
+}
 
-const arenaHeight = 500;
-const arenaWidth = 500;
+const arenaHeight = 500
+const arenaWidth = 500
 
-const gravity = 5;
+const gravity = 5
 
-const tps = 60;
-const interval = Math.round(1000 / tps);
+const tps = 60
+const interval = Math.round(1000 / tps)
 
 const mainBall: Ball = {
     pos: new Vector2(100, 50),
     vel: new Vector2(0, 0),
     mass: 100,
     radius: 25,
-};
+}
 
 const mouseBall: Ball = {
     pos: new Vector2(0, 0),
     vel: null,
     mass: 5000,
     radius: 0,
-};
+}
 
 export default function Home() {
-    const mousePos = useRef({ x: 0, y: 0 });
+    const mousePos = useRef({ x: 0, y: 0 })
 
-    const [ballPos, setBallPos] = useState({ x: 0, y: 0 });
+    const [ballPos, setBallPos] = useState({ x: 0, y: 0 })
 
-    const canvasRef: RefObject<HTMLDivElement> = useRef(null!);
-    const mouseBallActive = useHover(canvasRef); // TODO: Sometimes the mouse gravity doesn't seem to be active.
-    const mouseBallActiveRef = useRef(mouseBallActive);
-    mouseBallActiveRef.current = mouseBallActive;
+    const canvasRef: RefObject<HTMLDivElement> = useRef(null!)
+    const mouseBallActive = useRef(false)
 
     function updateBall() {
-        setBallPos({ x: mainBall.pos.x, y: mainBall.pos.y });
+        setBallPos({ x: mainBall.pos.x, y: mainBall.pos.y })
     }
 
     function updateMouseBall() {
-        mouseBall.pos.x = mousePos.current.x;
-        mouseBall.pos.y = mousePos.current.y;
+        mouseBall.pos.x = mousePos.current.x
+        mouseBall.pos.y = mousePos.current.y
     }
 
     function handlePointerMove(e: React.PointerEvent<HTMLDivElement>): void {
-        mousePos.current.x = e.clientX;
-        mousePos.current.y = e.clientY;
+        mousePos.current.x = e.clientX
+        mousePos.current.y = e.clientY
+        // Handle activation of the mouse ball here so it also works independently form the pointer-enter-event.
+        // (Handles the case where the cursor is already within the frame when it mounts).
+        mouseBallActive.current = true
     }
 
     useEffect(() => {
         const intervalTimer = setInterval(() => {
-            updateMouseBall();
+            updateMouseBall()
 
-            let balls: Ball[];
-            if (mouseBallActiveRef.current) {
-                balls = [mouseBall, mainBall];
+            let balls: Ball[]
+            if (mouseBallActive.current) {
+                balls = [mouseBall, mainBall]
             } else {
-                balls = [mainBall];
+                balls = [mainBall]
             }
-            moveBalls(balls);
-            updateBall();
-        }, interval);
+            moveBalls(balls)
+            updateBall()
+        }, interval)
 
-        return () => clearInterval(intervalTimer);
-    }, []);
+        return () => clearInterval(intervalTimer)
+    }, [])
 
     return (
         <div
@@ -79,9 +79,14 @@ export default function Home() {
                 width: arenaWidth,
                 height: arenaHeight,
                 background: "#171717",
+                touchAction: "none",
             }}
             ref={canvasRef}
             onPointerMove={handlePointerMove}
+            // The activation of the mouse ball handles on every move event,
+            // only leaving needs to be handled explicitly.
+            onPointerLeave={() => mouseBallActive.current = false}
+            onPointerCancel={() => mouseBallActive.current = false}
         >
             <div
                 style={{
@@ -93,21 +98,21 @@ export default function Home() {
                     background: "blue",
                     borderRadius: "50%",
                 }}
-            ></div>
+            />
         </div>
-    );
+    )
 }
 
 function moveBalls(balls: Ball[]): void {
-    balls.forEach(applyGravity);
+    balls.forEach(applyGravity)
     for (let i = 0; i < balls.length; i++) {
         for (let j = 0; j < i; j++) {
             // Limit the iterations to `i - 1` as to only include unique and unequal pairs.
-            applyForce(balls[i], balls[j]);
+            applyForce(balls[i], balls[j])
         }
     }
 
-    balls.forEach((b) => moveInBox(b, [0, arenaWidth, 0, arenaHeight]));
+    balls.forEach((b) => moveInBox(b, [0, arenaWidth, 0, arenaHeight]))
 }
 
 /** Moves the ball within the `box` so that it does not go above its boundaries.
@@ -120,74 +125,74 @@ function moveBalls(balls: Ball[]): void {
  *  */
 function moveInBox(ball: Ball, box: [number, number, number, number]): void {
     if (!ball.vel) {
-        return;
+        return
     }
-    const [left, right, top, bottom] = box;
+    const [left, right, top, bottom] = box
 
-    const vel = ball.vel;
-    const pos = ball.pos;
-    const radius = ball.radius;
+    const vel = ball.vel
+    const pos = ball.pos
+    const radius = ball.radius
 
-    const targetPos = pos.clone().add(vel);
+    const targetPos = pos.clone().add(vel)
 
     if (targetPos.x - radius < left) {
         // Clamp left.
-        ball.pos.x = left + radius;
-        ball.vel.x = 0;
+        ball.pos.x = left + radius
+        ball.vel.x = 0
     } else if (targetPos.x + radius > right) {
         // Clamp right.
-        ball.pos.x = right - radius;
-        ball.vel.x = 0;
+        ball.pos.x = right - radius
+        ball.vel.x = 0
     } else {
-        ball.pos.x = targetPos.x;
+        ball.pos.x = targetPos.x
     }
     if (targetPos.y - radius < top) {
         // Clamp top.
-        ball.pos.y = top + radius;
-        ball.vel.y = 0;
+        ball.pos.y = top + radius
+        ball.vel.y = 0
     } else if (targetPos.y + radius > bottom) {
         // Clamp bottom.
-        ball.pos.y = bottom - radius;
-        ball.vel.y = 0;
+        ball.pos.y = bottom - radius
+        ball.vel.y = 0
     } else {
-        ball.pos.y = targetPos.y;
+        ball.pos.y = targetPos.y
     }
 }
 
 /** Modifies the velocity of both balls in accordance to the force generated between them.*/
 function applyForce(ball1: Ball, ball2: Ball): void {
-    const force = getForce(ball1, ball2);
+    const force = getForce(ball1, ball2)
     if (ball1.vel) {
-        const acc1 = force.scale(1 / ball1.mass);
-        ball1.vel.add(acc1);
+        const acc1 = force.scale(1 / ball1.mass)
+        ball1.vel.add(acc1)
     }
     if (ball2.vel) {
-        const acc2 = force.scale(1 / ball2.mass).negate();
-        ball2.vel.add(acc2);
+        const acc2 = force.scale(1 / ball2.mass).negate()
+        ball2.vel.add(acc2)
     }
 }
 
 /**Modifies the velocity of the ball in accordance with the global gravity.*/
 function applyGravity(ball: Ball) {
     if (ball.vel) {
-        ball.vel.y = ball.vel.y + gravity / ball.mass;
+        ball.vel.y = ball.vel.y + gravity / ball.mass
     }
 }
 
 /** Return the gravitational force between the two balls, determined by their distance and mass.
  *  The vector points from `ball1` to `ball2`.*/
 function getForce(ball1: Ball, ball2: Ball): Vector2 {
-    let distance = ball1.pos.distance(ball2.pos);
-    let forceScale: number;
+    let distance = ball1.pos.distance(ball2.pos)
+    let forceScale: number
 
     if (distance !== 0) {
-        distance = Math.max(5, distance);
+        distance = Math.max(10, distance)
         // Clamp the distance to a minimum of 5 to prevent excessive acceleration
         // (Happens when colliding with the mouse at it has no radius).
-        forceScale = (ball1.mass * ball2.mass) / distance ** 3;
+        forceScale = (ball1.mass * ball2.mass) / distance ** 3
         // ↑ Square scaling by the nature and an extra division by the distance to normalize the vector delta.
     } else {
-        forceScale = 0;
+        forceScale = 0
     }
-    return ball2.pos.clone().subtract(ball1.pos).scale(forceScale);
+    return ball2.pos.clone().subtract(ball1.pos).scale(forceScale)
 }
