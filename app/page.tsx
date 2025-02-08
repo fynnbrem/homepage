@@ -52,6 +52,11 @@ export default function Home() {
         mouseBall.pos.y = mousePos.current.y
     }
 
+    function handlePointerMove(e: React.PointerEvent<HTMLDivElement>): void {
+        mousePos.current.x = e.clientX
+        mousePos.current.y = e.clientY
+    }
+
     useEffect(() => {
         const intervalTimer = setInterval(() => {
             updateMouseBall()
@@ -70,14 +75,15 @@ export default function Home() {
     }, []);
 
 
-    useEventListener("mousemove", (e: MouseEvent) => {
-        mousePos.current.x = e.clientX
-        mousePos.current.y = e.clientY
-    })
+    // useEventListener("mousemove", (e: MouseEvent) => {
+    //     mousePos.current.x = e.clientX
+    //     mousePos.current.y = e.clientY
+    // })
 
 
     return (
-        <div style={{width: arenaWidth, height: arenaHeight, background: "#171717"}} ref={canvasRef}>
+        <div style={{width: arenaWidth, height: arenaHeight, background: "#171717"}} ref={canvasRef}
+             onPointerMove={handlePointerMove}>
             <div style={{
                 position: "absolute",
                 left: ballPos.x - mainBall.radius,
@@ -185,7 +191,6 @@ function getForce(ball1: Ball, ball2: Ball): Vector2 {
         // (Happens when colliding with the mouse at it has no radius).
         forceScale = (ball1.mass * ball2.mass) / (distance ** 3)
         // ↑ Square scaling by the nature and an extra division by the distance to normalize the vector delta.
-        console.log(distance)
     } else {
         forceScale = 0
     }
