@@ -7,10 +7,12 @@ type Ball = {
     vel: Vector2 | null
     mass: number
     radius: number
+    elasticity: number
 }
 
 const arenaHeight = 500
 const arenaWidth = 500
+const arenaElasticity = 0.8
 
 const gravity = 5
 
@@ -22,6 +24,7 @@ const mainBall: Ball = {
     vel: new Vector2(0, 0),
     mass: 100,
     radius: 25,
+    elasticity: 0.8,
 }
 
 const mouseBall: Ball = {
@@ -29,6 +32,7 @@ const mouseBall: Ball = {
     vel: null,
     mass: 5000,
     radius: 0,
+    elasticity: 1,
 }
 
 export default function Home() {
@@ -85,8 +89,8 @@ export default function Home() {
             onPointerMove={handlePointerMove}
             // The activation of the mouse ball handles on every move event,
             // only leaving needs to be handled explicitly.
-            onPointerLeave={() => mouseBallActive.current = false}
-            onPointerCancel={() => mouseBallActive.current = false}
+            onPointerLeave={() => (mouseBallActive.current = false)}
+            onPointerCancel={() => (mouseBallActive.current = false)}
         >
             <div
                 style={{
@@ -132,28 +136,29 @@ function moveInBox(ball: Ball, box: [number, number, number, number]): void {
     const vel = ball.vel
     const pos = ball.pos
     const radius = ball.radius
+    const conversion = ball.elasticity * arenaElasticity
 
     const targetPos = pos.clone().add(vel)
 
     if (targetPos.x - radius < left) {
         // Clamp left.
         ball.pos.x = left + radius
-        ball.vel.x = 0
+        ball.vel.x = -ball.vel.x * conversion
     } else if (targetPos.x + radius > right) {
         // Clamp right.
         ball.pos.x = right - radius
-        ball.vel.x = 0
+        ball.vel.x = -ball.vel.x * conversion
     } else {
         ball.pos.x = targetPos.x
     }
     if (targetPos.y - radius < top) {
         // Clamp top.
         ball.pos.y = top + radius
-        ball.vel.y = 0
+        ball.vel.y = -ball.vel.y * conversion
     } else if (targetPos.y + radius > bottom) {
         // Clamp bottom.
         ball.pos.y = bottom - radius
-        ball.vel.y = 0
+        ball.vel.y = -ball.vel.y * conversion
     } else {
         ball.pos.y = targetPos.y
     }
