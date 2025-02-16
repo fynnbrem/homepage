@@ -1,0 +1,27 @@
+- 🟢 Single Ball
+- 🟢 Box Constraints
+- 🟢 Mobile Touch Compatibility
+- 🟡 Elastic Impact
+- 🟡 Multiple Balls
+  - Ball Constraints
+- 🟡 Visual Effects
+  - Shadow that emulates a light source?
+  - Trail effect?
+- 🟡 Settings 1: Globals
+  - Adjust Mouse Mass
+  - Deactivate Mouse
+  - Adjust Gravity
+  - Adjust Wall Elasticity
+- 🟡 Settings 2: Balls
+  - Add/Remove Balls
+  - Configure Balls
+    - Mass
+    - Radius
+    - Elasticity
+    - Color
+- 🟡 Adaptive Layout
+- 🟡 Settings 3
+  - Pause
+- 🟡 Drag & Drop Balls
+  - Works in Pause
+  - Only while mouse is inactive (settings)
