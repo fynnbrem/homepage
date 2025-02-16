@@ -8,6 +8,7 @@ type Ball = {
     mass: number
     radius: number
     elasticity: number
+    color: string
 }
 
 const arenaHeight = 500
@@ -19,32 +20,56 @@ const gravity = 5
 const tps = 60
 const interval = Math.round(1000 / tps)
 
-const mainBall: Ball = {
-    pos: new Vector2(100, 50),
-    vel: new Vector2(0, 0),
-    mass: 100,
-    radius: 25,
-    elasticity: 0.8,
-}
-
+const balls: Ball[] = [
+    {
+        pos: new Vector2(100, 50),
+        vel: new Vector2(0, 0),
+        mass: 1000,
+        radius: 25,
+        elasticity: 0.8,
+        color: "#0000FF"
+    },
+    {
+        pos: new Vector2(50, 50),
+        vel: new Vector2(0, 0),
+        mass: 2000,
+        radius: 15,
+        elasticity: 0.9,
+        color: "#00CCFF"
+    },
+    {
+        pos: new Vector2(150, 50),
+        vel: new Vector2(0, 0),
+        mass: 500,
+        radius: 10,
+        elasticity: 0,
+        color: "#0066CC"
+    }
+]
 const mouseBall: Ball = {
     pos: new Vector2(0, 0),
     vel: null,
-    mass: 5000,
+    mass: 500,
     radius: 0,
     elasticity: 1,
+    color: "red",
+}
+
+/**Creates a minimal position object for the `ball`.*/
+function createBallPosition(ball: Ball): { x: number; y: number } {
+    return { x: ball.pos.x, y: ball.pos.y }
 }
 
 export default function Home() {
     const mousePos = useRef({ x: 0, y: 0 })
 
-    const [ballPos, setBallPos] = useState({ x: 0, y: 0 })
+    const [ballPos, setBallPos] = useState(balls.map(createBallPosition))
 
     const canvasRef: RefObject<HTMLDivElement> = useRef(null!)
     const mouseBallActive = useRef(false)
 
-    function updateBall() {
-        setBallPos({ x: mainBall.pos.x, y: mainBall.pos.y })
+    function updateBalls() {
+        setBallPos(balls.map(createBallPosition))
     }
 
     function updateMouseBall() {
@@ -64,14 +89,14 @@ export default function Home() {
         const intervalTimer = setInterval(() => {
             updateMouseBall()
 
-            let balls: Ball[]
+            let activeBalls: Ball[]
             if (mouseBallActive.current) {
-                balls = [mouseBall, mainBall]
+                activeBalls = [mouseBall, ...balls]
             } else {
-                balls = [mainBall]
+                activeBalls = balls
             }
-            moveBalls(balls)
-            updateBall()
+            moveBalls(activeBalls)
+            updateBalls()
         }, interval)
 
         return () => clearInterval(intervalTimer)
@@ -92,17 +117,22 @@ export default function Home() {
             onPointerLeave={() => (mouseBallActive.current = false)}
             onPointerCancel={() => (mouseBallActive.current = false)}
         >
-            <div
-                style={{
-                    position: "absolute",
-                    left: ballPos.x - mainBall.radius,
-                    top: ballPos.y - mainBall.radius,
-                    width: mainBall.radius * 2,
-                    height: mainBall.radius * 2,
-                    background: "blue",
-                    borderRadius: "50%",
-                }}
-            />
+            {ballPos.map((b, i) => {
+                return (
+                    <div
+                        key={i}
+                        style={{
+                            position: "absolute",
+                            left: b.x - balls[i].radius,
+                            top: b.y - balls[i].radius,
+                            width: balls[i].radius * 2,
+                            height: balls[i].radius * 2,
+                            background: balls[i].color,
+                            borderRadius: "50%",
+                        }}
+                    />
+                )
+            })}
         </div>
     )
 }
@@ -168,7 +198,7 @@ function moveInBox(ball: Ball, box: [number, number, number, number]): void {
 function applyForce(ball1: Ball, ball2: Ball): void {
     const force = getForce(ball1, ball2)
     if (ball1.vel) {
-        const acc1 = force.scale(1 / ball1.mass)
+        const acc1 = force.clone().scale(1 / ball1.mass)
         ball1.vel.add(acc1)
     }
     if (ball2.vel) {

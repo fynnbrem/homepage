@@ -12,6 +12,7 @@
   - Deactivate Mouse
   - Adjust Gravity
   - Adjust Wall Elasticity
+  - Remove Inter-Ball-Collision
 - 🟡 Settings 2: Balls
   - Add/Remove Balls
   - Configure Balls
@@ -25,3 +26,5 @@
 - 🟡 Drag & Drop Balls
   - Works in Pause
   - Only while mouse is inactive (settings)
+- 🟡 Settings 4: Performance
+  - Low Precision Mode (Reduce accuracy of calculations in favour of performance)
