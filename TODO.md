@@ -1,7 +1,7 @@
 - 🟢 Single Ball
 - 🟢 Box Constraints
 - 🟢 Mobile Touch Compatibility
-- 🟡 Elastic Impact
+- 🟢 Elastic Impact
 - 🟡 Multiple Balls
   - Ball Constraints
 - 🟡 Visual Effects

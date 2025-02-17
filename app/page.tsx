@@ -2,10 +2,12 @@
 import React, { RefObject, useEffect, useRef, useState } from "react"
 import { Vector2 } from "math.gl"
 
-type Ball = {
+type VoidBall = {
     pos: Vector2
-    vel: Vector2 | null
     mass: number
+}
+type Ball = VoidBall & {
+    vel: Vector2
     radius: number
     elasticity: number
     color: string
@@ -24,35 +26,32 @@ const balls: Ball[] = [
     {
         pos: new Vector2(100, 50),
         vel: new Vector2(0, 0),
-        mass: 1000,
+        mass: 100,
         radius: 25,
-        elasticity: 0.8,
-        color: "#0000FF"
+        elasticity: 0.95,
+        color: "#0000FF",
     },
     {
         pos: new Vector2(50, 50),
         vel: new Vector2(0, 0),
-        mass: 2000,
+        mass: 200,
         radius: 15,
         elasticity: 0.9,
-        color: "#00CCFF"
+        color: "#00CCFF",
     },
     {
         pos: new Vector2(150, 50),
         vel: new Vector2(0, 0),
-        mass: 500,
+        mass: 50,
         radius: 10,
         elasticity: 0,
-        color: "#0066CC"
-    }
+        color: "#0066CC",
+    },
 ]
-const mouseBall: Ball = {
+
+const mouseBall: VoidBall = {
     pos: new Vector2(0, 0),
-    vel: null,
     mass: 500,
-    radius: 0,
-    elasticity: 1,
-    color: "red",
 }
 
 /**Creates a minimal position object for the `ball`.*/
@@ -88,14 +87,7 @@ export default function Home() {
     useEffect(() => {
         const intervalTimer = setInterval(() => {
             updateMouseBall()
-
-            let activeBalls: Ball[]
-            if (mouseBallActive.current) {
-                activeBalls = [mouseBall, ...balls]
-            } else {
-                activeBalls = balls
-            }
-            moveBalls(activeBalls)
+            moveBalls(balls, mouseBallActive.current ? mouseBall : undefined)
             updateBalls()
         }, interval)
 
@@ -137,15 +129,31 @@ export default function Home() {
     )
 }
 
-function moveBalls(balls: Ball[]): void {
-    balls.forEach(applyGravity)
+function moveBalls(balls: Ball[], mouseBall?: VoidBall): void {
+    // Apply global gravity.
+    balls.forEach(applyGlobalGravity)
+    // Apply gravity between the balls.
     for (let i = 0; i < balls.length; i++) {
         for (let j = 0; j < i; j++) {
             // Limit the iterations to `i - 1` as to only include unique and unequal pairs.
-            applyForce(balls[i], balls[j])
+            applyBallGravity(balls[i], balls[j])
+        }
+    }
+    // Apply mouse ball gravity.
+    if (mouseBall) {
+        balls.forEach((b) => applyVoidBallGravity(b, mouseBall))
+    }
+
+    for (let i = 0; i < balls.length; i++) {
+        for (let j = 0; j < i; j++) {
+            // Limit the iterations to `i - 1` as to only include unique and unequal pairs.
+            if (getBallOverlap(balls[i], balls[j]) > 0) {
+                collideBalls(balls[i], balls[j])
+            }
         }
     }
 
+    // Apply the generated forces to the velocity and move the balls.
     balls.forEach((b) => moveInBox(b, [0, arenaWidth, 0, arenaHeight]))
 }
 
@@ -158,9 +166,6 @@ function moveBalls(balls: Ball[]): void {
  *  Must be the following coordinates: `[leftX, rightX, topY, bottomY]`
  *  */
 function moveInBox(ball: Ball, box: [number, number, number, number]): void {
-    if (!ball.vel) {
-        return
-    }
     const [left, right, top, bottom] = box
 
     const vel = ball.vel
@@ -195,28 +200,30 @@ function moveInBox(ball: Ball, box: [number, number, number, number]): void {
 }
 
 /** Modifies the velocity of both balls in accordance to the force generated between them.*/
-function applyForce(ball1: Ball, ball2: Ball): void {
+function applyBallGravity(ball1: Ball, ball2: Ball): void {
     const force = getForce(ball1, ball2)
-    if (ball1.vel) {
-        const acc1 = force.clone().scale(1 / ball1.mass)
-        ball1.vel.add(acc1)
-    }
-    if (ball2.vel) {
-        const acc2 = force.scale(1 / ball2.mass).negate()
-        ball2.vel.add(acc2)
-    }
+    const acc1 = force.clone().scale(1 / ball1.mass)
+    ball1.vel.add(acc1)
+
+    const acc2 = force.scale(1 / ball2.mass).negate()
+    ball2.vel.add(acc2)
+}
+
+/** Modifies the velocity of the `ball` in accordance to the force generated between it and the `voidBall`.*/
+function applyVoidBallGravity(ball: Ball, voidBall: VoidBall): void {
+    const force = getForce(ball, voidBall)
+    const acc1 = force.scale(1 / ball.mass)
+    ball.vel.add(acc1)
 }
 
 /**Modifies the velocity of the ball in accordance with the global gravity.*/
-function applyGravity(ball: Ball) {
-    if (ball.vel) {
-        ball.vel.y = ball.vel.y + gravity / ball.mass
-    }
+function applyGlobalGravity(ball: Ball) {
+    ball.vel.y = ball.vel.y + gravity / ball.mass
 }
 
 /** Return the gravitational force between the two balls, determined by their distance and mass.
  *  The vector points from `ball1` to `ball2`.*/
-function getForce(ball1: Ball, ball2: Ball): Vector2 {
+function getForce(ball1: VoidBall, ball2: VoidBall): Vector2 {
     let distance = ball1.pos.distance(ball2.pos)
     let forceScale: number
 
@@ -230,4 +237,43 @@ function getForce(ball1: Ball, ball2: Ball): Vector2 {
         forceScale = 0
     }
     return ball2.pos.clone().subtract(ball1.pos).scale(forceScale)
+}
+
+function collideBalls(ball1: Ball, ball2: Ball) {
+    const collisionNorm = ball2.pos.clone().subtract(ball1.pos).normalize()
+    const relativeVel = ball2.vel.clone().subtract(ball1.vel)
+    const collisionVel = collisionNorm.clone().dot(relativeVel)
+
+    // If the velocity is negative,
+    // the balls are moving away from one another so we can skip the collision.
+    if (collisionVel > 0) return
+
+    // Calculate the total collision impulse.
+    // Note that this is not strictly the physical impulse as we do not scale it with the mass-product of both balls.
+    // This is so we don't have to divide them out again later down the line.
+    const impulse = (2 * collisionVel) / (ball1.mass + ball2.mass)
+
+    // Apply the impulse.
+    // Note that due to the special definition of the impulse,
+    // we do not divide-out the balls mass but rather multiply-in the other balls mass.
+    const conversion = ball1.elasticity * ball2.elasticity
+    ball1.vel.add(
+        collisionNorm.clone().scale(impulse * ball2.mass * conversion),
+    )
+    ball2.vel.subtract(
+        collisionNorm.clone().scale(impulse * ball1.mass * conversion),
+    )
+
+    const overlap = getBallOverlap(ball1, ball2)
+    const separation = overlap / (ball1.mass + ball2.mass)
+    ball1.pos.subtract(collisionNorm.clone().scale(ball2.mass * separation ))
+    ball2.pos.add(collisionNorm.clone().scale(ball1.mass * separation ))
+
+}
+
+/**Returns the overlap of the balls.
+ * This is a positive value if they overlap and negative otherwise.**/
+function getBallOverlap(ball1: Ball, ball2: Ball): number {
+    const totalDistance = ball1.pos.distance(ball2.pos)
+    return ball1.radius + ball2.radius - totalDistance
 }
