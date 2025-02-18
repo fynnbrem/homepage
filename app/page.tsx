@@ -15,33 +15,34 @@ type Ball = VoidBall & {
 
 const arenaHeight = 500
 const arenaWidth = 500
-const arenaElasticity = 0.8
+const arenaElasticity = 0.9
 
 const gravity = 5
+const doCollide = true
 
 const tps = 60
 const interval = Math.round(1000 / tps)
 
 const balls: Ball[] = [
     {
-        pos: new Vector2(100, 50),
-        vel: new Vector2(0, 0),
+        pos: new Vector2(100, 100),
+        vel: new Vector2(20, 20),
         mass: 100,
         radius: 25,
-        elasticity: 0.95,
+        elasticity: 1,
         color: "#0000FF",
     },
     {
         pos: new Vector2(50, 50),
-        vel: new Vector2(0, 0),
+        vel: new Vector2(10, 0),
         mass: 200,
         radius: 15,
-        elasticity: 0.9,
+        elasticity: 0.8,
         color: "#00CCFF",
     },
     {
-        pos: new Vector2(150, 50),
-        vel: new Vector2(0, 0),
+        pos: new Vector2(300, 100),
+        vel: new Vector2(0, -5),
         mass: 50,
         radius: 10,
         elasticity: 0,
@@ -51,25 +52,18 @@ const balls: Ball[] = [
 
 const mouseBall: VoidBall = {
     pos: new Vector2(0, 0),
-    mass: 500,
-}
-
-/**Creates a minimal position object for the `ball`.*/
-function createBallPosition(ball: Ball): { x: number; y: number } {
-    return { x: ball.pos.x, y: ball.pos.y }
+    mass: 1500,
 }
 
 export default function Home() {
     const mousePos = useRef({ x: 0, y: 0 })
 
-    const [ballPos, setBallPos] = useState(balls.map(createBallPosition))
+    /*We use a dummy state to update the component on every tick.*/
+    const [, forceRerender] = useState(true)
+
 
     const canvasRef: RefObject<HTMLDivElement> = useRef(null!)
     const mouseBallActive = useRef(false)
-
-    function updateBalls() {
-        setBallPos(balls.map(createBallPosition))
-    }
 
     function updateMouseBall() {
         mouseBall.pos.x = mousePos.current.x
@@ -88,7 +82,8 @@ export default function Home() {
         const intervalTimer = setInterval(() => {
             updateMouseBall()
             moveBalls(balls, mouseBallActive.current ? mouseBall : undefined)
-            updateBalls()
+
+            forceRerender(v => !v)
         }, interval)
 
         return () => clearInterval(intervalTimer)
@@ -109,17 +104,17 @@ export default function Home() {
             onPointerLeave={() => (mouseBallActive.current = false)}
             onPointerCancel={() => (mouseBallActive.current = false)}
         >
-            {ballPos.map((b, i) => {
+            {balls.map((b, i) => {
                 return (
                     <div
                         key={i}
                         style={{
                             position: "absolute",
-                            left: b.x - balls[i].radius,
-                            top: b.y - balls[i].radius,
-                            width: balls[i].radius * 2,
-                            height: balls[i].radius * 2,
-                            background: balls[i].color,
+                            left: b.pos.x - b.radius,
+                            top: b.pos.y - b.radius,
+                            width: b.radius * 2,
+                            height: b.radius * 2,
+                            background: b.color,
                             borderRadius: "50%",
                         }}
                     />
@@ -143,16 +138,17 @@ function moveBalls(balls: Ball[], mouseBall?: VoidBall): void {
     if (mouseBall) {
         balls.forEach((b) => applyVoidBallGravity(b, mouseBall))
     }
-
-    for (let i = 0; i < balls.length; i++) {
-        for (let j = 0; j < i; j++) {
-            // Limit the iterations to `i - 1` as to only include unique and unequal pairs.
-            if (getBallOverlap(balls[i], balls[j]) > 0) {
-                collideBalls(balls[i], balls[j])
+    if (doCollide) {
+        for (let i = 0; i < balls.length; i++) {
+            for (let j = 0; j < i; j++) {
+                const overlap = getBallOverlap(balls[i], balls[j])
+                // Limit the iterations to `i - 1` as to only include unique and unequal pairs.
+                if (overlap > 0) {
+                    collideBalls(balls[i], balls[j], overlap)
+                }
             }
         }
     }
-
     // Apply the generated forces to the velocity and move the balls.
     balls.forEach((b) => moveInBox(b, [0, arenaWidth, 0, arenaHeight]))
 }
@@ -171,29 +167,32 @@ function moveInBox(ball: Ball, box: [number, number, number, number]): void {
     const vel = ball.vel
     const pos = ball.pos
     const radius = ball.radius
-    const conversion = ball.elasticity * arenaElasticity
+    const restitution = combineRestitutionCoefficients(
+        ball.elasticity,
+        arenaElasticity,
+    )
 
     const targetPos = pos.clone().add(vel)
 
     if (targetPos.x - radius < left) {
         // Clamp left.
         ball.pos.x = left + radius
-        ball.vel.x = -ball.vel.x * conversion
+        ball.vel.x = -ball.vel.x * restitution
     } else if (targetPos.x + radius > right) {
         // Clamp right.
         ball.pos.x = right - radius
-        ball.vel.x = -ball.vel.x * conversion
+        ball.vel.x = -ball.vel.x * restitution
     } else {
         ball.pos.x = targetPos.x
     }
     if (targetPos.y - radius < top) {
         // Clamp top.
         ball.pos.y = top + radius
-        ball.vel.y = -ball.vel.y * conversion
+        ball.vel.y = -ball.vel.y * restitution
     } else if (targetPos.y + radius > bottom) {
         // Clamp bottom.
         ball.pos.y = bottom - radius
-        ball.vel.y = -ball.vel.y * conversion
+        ball.vel.y = -ball.vel.y * restitution
     } else {
         ball.pos.y = targetPos.y
     }
@@ -239,7 +238,7 @@ function getForce(ball1: VoidBall, ball2: VoidBall): Vector2 {
     return ball2.pos.clone().subtract(ball1.pos).scale(forceScale)
 }
 
-function collideBalls(ball1: Ball, ball2: Ball) {
+function collideBalls(ball1: Ball, ball2: Ball, overlap: number) {
     const collisionNorm = ball2.pos.clone().subtract(ball1.pos).normalize()
     const relativeVel = ball2.vel.clone().subtract(ball1.vel)
     const collisionVel = collisionNorm.clone().dot(relativeVel)
@@ -251,7 +250,12 @@ function collideBalls(ball1: Ball, ball2: Ball) {
     // Calculate the total collision impulse.
     // Note that this is not strictly the physical impulse as we do not scale it with the mass-product of both balls.
     // This is so we don't have to divide them out again later down the line.
-    const impulse = (2 * collisionVel) / (ball1.mass + ball2.mass)
+    const restitution = combineRestitutionCoefficients(
+        ball1.elasticity,
+        ball2.elasticity,
+    )
+    const impulse =
+        ((1 + restitution) * collisionVel) / (ball1.mass + ball2.mass)
 
     // Apply the impulse.
     // Note that due to the special definition of the impulse,
@@ -263,12 +267,11 @@ function collideBalls(ball1: Ball, ball2: Ball) {
     ball2.vel.subtract(
         collisionNorm.clone().scale(impulse * ball1.mass * conversion),
     )
-
-    const overlap = getBallOverlap(ball1, ball2)
+    // Move the balls out of the overlap.
+    // The balls will be moved anti-proportionally to their mass.
     const separation = overlap / (ball1.mass + ball2.mass)
-    ball1.pos.subtract(collisionNorm.clone().scale(ball2.mass * separation ))
-    ball2.pos.add(collisionNorm.clone().scale(ball1.mass * separation ))
-
+    ball1.pos.subtract(collisionNorm.clone().scale(ball2.mass * separation))
+    ball2.pos.add(collisionNorm.clone().scale(ball1.mass * separation))
 }
 
 /**Returns the overlap of the balls.
@@ -276,4 +279,12 @@ function collideBalls(ball1: Ball, ball2: Ball) {
 function getBallOverlap(ball1: Ball, ball2: Ball): number {
     const totalDistance = ball1.pos.distance(ball2.pos)
     return ball1.radius + ball2.radius - totalDistance
+}
+
+/**Returns the combined coefficient of restitution (COR) for a collision with the coefficieints `cor1` and `cor2`.
+ * The proper way to calculate is up to debate as the actual
+ * value is a property for the interaction between two bodies, and not an intrinsic value of a single body.
+ * We calculate the product of the coefficients to approximate it.*/
+function combineRestitutionCoefficients(cor1: number, cor2: number): number {
+    return cor1 * cor2
 }
