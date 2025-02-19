@@ -17,32 +17,32 @@ const arenaHeight = 500
 const arenaWidth = 500
 const arenaElasticity = 0.9
 
-const gravity = 5
+const gravity = 0
 const doCollide = true
 
 const tps = 60
 const interval = Math.round(1000 / tps)
 
-const balls: Ball[] = [
+const globalBalls: Ball[] = [
     {
         pos: new Vector2(100, 100),
-        vel: new Vector2(20, 20),
+        vel: new Vector2(10, 0),
         mass: 100,
         radius: 25,
         elasticity: 1,
         color: "#0000FF",
     },
     {
-        pos: new Vector2(50, 50),
-        vel: new Vector2(10, 0),
+        pos: new Vector2(225, 100),
+        vel: new Vector2(5, 5),
         mass: 200,
         radius: 15,
         elasticity: 0.8,
         color: "#00CCFF",
     },
     {
-        pos: new Vector2(300, 100),
-        vel: new Vector2(0, -5),
+        pos: new Vector2(150, 150),
+        vel: new Vector2(0, -2),
         mass: 50,
         radius: 10,
         elasticity: 0,
@@ -58,9 +58,9 @@ const mouseBall: VoidBall = {
 export default function Home() {
     const mousePos = useRef({ x: 0, y: 0 })
 
-    /*We use a dummy state to update the component on every tick.*/
+    /*We use a dummy state to update the component on every tick.
+     * We do this because we have no reason to utilize React's optimizations as every object changes on every tick.*/
     const [, forceRerender] = useState(true)
-
 
     const canvasRef: RefObject<HTMLDivElement> = useRef(null!)
     const mouseBallActive = useRef(false)
@@ -81,9 +81,12 @@ export default function Home() {
     useEffect(() => {
         const intervalTimer = setInterval(() => {
             updateMouseBall()
-            moveBalls(balls, mouseBallActive.current ? mouseBall : undefined)
+            moveBalls(
+                globalBalls,
+                mouseBallActive.current ? mouseBall : undefined,
+            )
 
-            forceRerender(v => !v)
+            forceRerender((v) => !v)
         }, interval)
 
         return () => clearInterval(intervalTimer)
@@ -104,7 +107,7 @@ export default function Home() {
             onPointerLeave={() => (mouseBallActive.current = false)}
             onPointerCancel={() => (mouseBallActive.current = false)}
         >
-            {balls.map((b, i) => {
+            {globalBalls.map((b, i) => {
                 return (
                     <div
                         key={i}
@@ -256,17 +259,11 @@ function collideBalls(ball1: Ball, ball2: Ball, overlap: number) {
     )
     const impulse =
         ((1 + restitution) * collisionVel) / (ball1.mass + ball2.mass)
-
     // Apply the impulse.
     // Note that due to the special definition of the impulse,
     // we do not divide-out the balls mass but rather multiply-in the other balls mass.
-    const conversion = ball1.elasticity * ball2.elasticity
-    ball1.vel.add(
-        collisionNorm.clone().scale(impulse * ball2.mass * conversion),
-    )
-    ball2.vel.subtract(
-        collisionNorm.clone().scale(impulse * ball1.mass * conversion),
-    )
+    ball1.vel.add(collisionNorm.clone().scale(impulse * ball2.mass))
+    ball2.vel.subtract(collisionNorm.clone().scale(impulse * ball1.mass))
     // Move the balls out of the overlap.
     // The balls will be moved anti-proportionally to their mass.
     const separation = overlap / (ball1.mass + ball2.mass)
@@ -281,7 +278,7 @@ function getBallOverlap(ball1: Ball, ball2: Ball): number {
     return ball1.radius + ball2.radius - totalDistance
 }
 
-/**Returns the combined coefficient of restitution (COR) for a collision with the coefficieints `cor1` and `cor2`.
+/**Returns the combined coefficient of restitution (COR) for a collision with the coefficients `cor1` and `cor2`.
  * The proper way to calculate is up to debate as the actual
  * value is a property for the interaction between two bodies, and not an intrinsic value of a single body.
  * We calculate the product of the coefficients to approximate it.*/
