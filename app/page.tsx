@@ -30,7 +30,7 @@ const globalBalls: Ball[] = [
         mass: 100,
         radius: 25,
         elasticity: 1,
-        color: "#0000FF",
+        color: "#e37e21",
     },
     {
         pos: new Vector2(225, 100),
@@ -38,7 +38,7 @@ const globalBalls: Ball[] = [
         mass: 200,
         radius: 15,
         elasticity: 0.8,
-        color: "#00CCFF",
+        color: "#eda503",
     },
     {
         pos: new Vector2(150, 150),
@@ -46,7 +46,7 @@ const globalBalls: Ball[] = [
         mass: 50,
         radius: 10,
         elasticity: 0,
-        color: "#0066CC",
+        color: "#b34500",
     },
 ]
 
@@ -97,7 +97,7 @@ export default function Home() {
             style={{
                 width: arenaWidth,
                 height: arenaHeight,
-                background: "#171717",
+                background: "#2A2A2A",
                 touchAction: "none",
             }}
             ref={canvasRef}
