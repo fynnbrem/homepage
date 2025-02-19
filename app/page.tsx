@@ -13,8 +13,7 @@ type Ball = VoidBall & {
     color: string
 }
 
-const arenaHeight = 500
-const arenaWidth = 500
+const arenaDim = new Vector2(500, 700)
 const arenaElasticity = 0.9
 
 const gravity = 0
@@ -56,13 +55,14 @@ const mouseBall: VoidBall = {
 }
 
 export default function Home() {
-    const mousePos = useRef({ x: 0, y: 0 })
+    const mousePos = useRef(new Vector2(0, 0))
 
     /*We use a dummy state to update the component on every tick.
      * We do this because we have no reason to utilize React's optimizations as every object changes on every tick.*/
     const [, forceRerender] = useState(true)
 
-    const canvasRef: RefObject<HTMLDivElement> = useRef(null!)
+    const arenaRef: RefObject<HTMLDivElement> = useRef(null!)
+
     const mouseBallActive = useRef(false)
 
     function updateMouseBall() {
@@ -95,19 +95,42 @@ export default function Home() {
     return (
         <div
             style={{
-                width: arenaWidth,
-                height: arenaHeight,
+                width: arenaDim.x,
+                height: arenaDim.y,
                 background: "#2A2A2A",
                 touchAction: "none",
+                overflow: "hidden",
+                position: "relative"
             }}
-            ref={canvasRef}
+            ref={arenaRef}
             onPointerMove={handlePointerMove}
-            // The activation of the mouse ball handles on every move event,
+            // The activation of the mouse ball is handled on every move event,
             // only leaving needs to be handled explicitly.
             onPointerLeave={() => (mouseBallActive.current = false)}
             onPointerCancel={() => (mouseBallActive.current = false)}
         >
+            {mouseBallActive.current && (
+                <div
+                    style={{
+                        position: "absolute",
+                        left: mousePos.current.x - 35,
+                        top: mousePos.current.y - 35,
+                        borderRadius: "50%",
+                        width: 70,
+                        height: 70,
+                        background:
+                            "radial-gradient(circle, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.1) 30%, rgba(255, 255, 255, 0) 100%)",
+                        boxShadow: "0 0 30px rgba(255, 255, 255, 0.1)",
+                    }}
+                />
+            )}
+
             {globalBalls.map((b, i) => {
+                const shadowOffset = getShadowOffset(
+                    b.pos,
+                    mousePos.current,
+                    25,
+                )
                 return (
                     <div
                         key={i}
@@ -119,12 +142,30 @@ export default function Home() {
                             height: b.radius * 2,
                             background: b.color,
                             borderRadius: "50%",
+                            boxShadow: `${shadowOffset.x}px ${shadowOffset.y}px 15px rgba(0, 0, 0, 0.3)`,
                         }}
                     />
                 )
             })}
         </div>
     )
+}
+
+/**Calculates a shadow offset that scales linearly with the distance of the object to the center.
+ * @param pos
+ *  The position of the object.
+ * @param center
+ *  The position of the center.
+ * @param units
+ *  How many units of distance should translate into 1 unit of offset.
+ * */
+function getShadowOffset(
+    pos: Vector2,
+    center: Vector2,
+    units: number,
+): Vector2 {
+    const distance = pos.clone().subtract(center)
+    return distance.scale(1 / units)
 }
 
 function moveBalls(balls: Ball[], mouseBall?: VoidBall): void {
@@ -153,7 +194,7 @@ function moveBalls(balls: Ball[], mouseBall?: VoidBall): void {
         }
     }
     // Apply the generated forces to the velocity and move the balls.
-    balls.forEach((b) => moveInBox(b, [0, arenaWidth, 0, arenaHeight]))
+    balls.forEach((b) => moveInBox(b, [0, arenaDim.x, 0, arenaDim.y]))
 }
 
 /** Moves the ball within the `box` so that it does not go above its boundaries.

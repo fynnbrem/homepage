@@ -18,6 +18,10 @@
     - Adjust Gravity
     - Adjust Wall Elasticity
     - Remove Inter-Ball-Collision
+- Make the Balls use State
+  - Update the state every tick with copies of the balls.
+  - This prevents rendering of positions that only exist within a tick, due to an in-tick rerender.
+  - Evaluate performance cost.
 - Settings 2: Balls
     - Add/Remove Balls
     - Configure Balls
@@ -25,6 +29,8 @@
         - Radius
         - Elasticity
         - Color
+- Dynamic Arena Size
+  - Collide balls into the borders of the arena when shrinking.
 - Adaptive Layout
 - Settings 3
     - Pause
