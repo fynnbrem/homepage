@@ -100,7 +100,8 @@ export default function Home() {
                 background: "#2A2A2A",
                 touchAction: "none",
                 overflow: "hidden",
-                position: "relative"
+                position: "relative",
+                cursor: "none",
             }}
             ref={arenaRef}
             onPointerMove={handlePointerMove}
@@ -119,12 +120,11 @@ export default function Home() {
                         width: 70,
                         height: 70,
                         background:
-                            "radial-gradient(circle, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.1) 30%, rgba(255, 255, 255, 0) 100%)",
+                            "radial-gradient(circle, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.25) 5%, rgba(255, 255, 255, 0.1) 30%, rgba(255, 255, 255, 0) 100%)",
                         boxShadow: "0 0 30px rgba(255, 255, 255, 0.1)",
                     }}
                 />
             )}
-
             {globalBalls.map((b, i) => {
                 const shadowOffset = getShadowOffset(
                     b.pos,
@@ -136,13 +136,31 @@ export default function Home() {
                         key={i}
                         style={{
                             position: "absolute",
+                            left: b.pos.x - b.radius + shadowOffset.x,
+                            top: b.pos.y - b.radius + shadowOffset.y,
+                            width: b.radius * 2,
+                            height: b.radius * 2,
+                            background: "rgba(0, 0, 0, 0.7)",
+                            border: "none",
+                            borderRadius: "50%",
+                            filter: "blur(10px)"
+                        }}
+                    />
+                )
+            })}
+
+            {globalBalls.map((b, i) => {
+                return (
+                    <div
+                        key={i}
+                        style={{
+                            position: "absolute",
                             left: b.pos.x - b.radius,
                             top: b.pos.y - b.radius,
                             width: b.radius * 2,
                             height: b.radius * 2,
                             background: b.color,
                             borderRadius: "50%",
-                            boxShadow: `${shadowOffset.x}px ${shadowOffset.y}px 15px rgba(0, 0, 0, 0.3)`,
                         }}
                     />
                 )
