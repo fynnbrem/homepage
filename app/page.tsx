@@ -11,6 +11,7 @@ type Ball = VoidBall & {
     radius: number
     elasticity: number
     color: string
+    path: Vector2[]
 }
 
 const arenaDim = new Vector2(500, 700)
@@ -30,6 +31,7 @@ const globalBalls: Ball[] = [
         radius: 25,
         elasticity: 1,
         color: "#e37e21",
+        path: [],
     },
     {
         pos: new Vector2(225, 100),
@@ -38,6 +40,7 @@ const globalBalls: Ball[] = [
         radius: 15,
         elasticity: 0.8,
         color: "#eda503",
+        path: [],
     },
     {
         pos: new Vector2(150, 150),
@@ -46,6 +49,7 @@ const globalBalls: Ball[] = [
         radius: 10,
         elasticity: 0,
         color: "#b34500",
+        path: [],
     },
 ]
 
@@ -79,15 +83,17 @@ export default function Home() {
     }
 
     useEffect(() => {
-        const intervalTimer = setInterval(() => {
+        function doTick(): void {
+            updateBallPath(globalBalls)
             updateMouseBall()
             moveBalls(
                 globalBalls,
                 mouseBallActive.current ? mouseBall : undefined,
             )
-
             forceRerender((v) => !v)
-        }, interval)
+        }
+
+        const intervalTimer = setInterval(doTick, interval)
 
         return () => clearInterval(intervalTimer)
     }, [])
@@ -110,21 +116,10 @@ export default function Home() {
             onPointerLeave={() => (mouseBallActive.current = false)}
             onPointerCancel={() => (mouseBallActive.current = false)}
         >
-            {mouseBallActive.current && (
-                <div
-                    style={{
-                        position: "absolute",
-                        left: mousePos.current.x - 35,
-                        top: mousePos.current.y - 35,
-                        borderRadius: "50%",
-                        width: 70,
-                        height: 70,
-                        background:
-                            "radial-gradient(circle, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.25) 5%, rgba(255, 255, 255, 0.1) 30%, rgba(255, 255, 255, 0) 100%)",
-                        boxShadow: "0 0 30px rgba(255, 255, 255, 0.1)",
-                    }}
-                />
-            )}
+            {/*Render the ball shadows.
+            These are not part of the ball elements themselves for the following reasons:
+                - Balls must not cast their shadow on other balls, but rather on the layer behind all balls.
+                - The pointer light must be rendered between balls and shadows.*/}
             {globalBalls.map((b, i) => {
                 const shadowOffset = getShadowOffset(
                     b.pos,
@@ -143,12 +138,56 @@ export default function Home() {
                             background: "rgba(0, 0, 0, 0.7)",
                             border: "none",
                             borderRadius: "50%",
-                            filter: "blur(10px)"
+                            filter: "blur(10px)",
                         }}
                     />
                 )
             })}
+            {/*Render the pointer light above the shadows.*/}
+            {mouseBallActive.current && (
+                <div
+                    style={{
+                        position: "absolute",
+                        left: mousePos.current.x - 35,
+                        top: mousePos.current.y - 35,
+                        borderRadius: "50%",
+                        width: 70,
+                        height: 70,
+                        background:
+                            "radial-gradient(circle, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.25) 5%, rgba(255, 255, 255, 0.1) 30%, rgba(255, 255, 255, 0) 100%)",
+                        boxShadow: "0 0 30px rgba(255, 255, 255, 0.1)",
+                    }}
+                />
+            )}
 
+            <svg
+                width={"100%"}
+                height={"100%"}
+            >
+                {globalBalls.map((b, i) => {
+                    const path = b.path
+                        .map((pos) => `${pos.x},${pos.y}`)
+                        .join(" ")
+                    return (
+                        <polyline
+                            key={i}
+                            points={path}
+                            fill={"none"}
+                            stroke={b.color}
+                            // Define the stroke width.
+                            // We want one that scales sub-linearly with size,
+                            // so big balls don't have a too large trail or small balls have a too small trail.
+                            // The rounding is not strictly necessary but prevents hydration errors due to imprecision.
+                            strokeWidth={Math.round(b.radius ** 0.7 * 1.2)}
+                            strokeOpacity={0.3}
+                            strokeLinecap={"round"}
+                            strokeLinejoin={"round"}
+                        />
+                    )
+                })}
+            </svg>
+
+            {/*Render the balls above the light.*/}
             {globalBalls.map((b, i) => {
                 return (
                     <div
@@ -184,6 +223,13 @@ function getShadowOffset(
 ): Vector2 {
     const distance = pos.clone().subtract(center)
     return distance.scale(1 / units)
+}
+
+function updateBallPath(balls: Ball[], maxHistory: number = 30) {
+    balls.forEach((b) => {
+        b.path.unshift(b.pos.clone())
+        b.path = b.path.slice(0, maxHistory)
+    })
 }
 
 function moveBalls(balls: Ball[], mouseBall?: VoidBall): void {
@@ -292,7 +338,7 @@ function getForce(ball1: VoidBall, ball2: VoidBall): Vector2 {
         distance = Math.max(10, distance)
         // Clamp the distance to a minimum of 5 to prevent excessive acceleration
         // (Happens when colliding with the mouse at it has no radius).
-        forceScale = (ball1.mass * ball2.mass) / distance ** 3
+        forceScale = (ball1.mass * ball2.mass) / distance ** 2.7
         // ↑ Square scaling by the nature and an extra division by the distance to normalize the vector delta.
     } else {
         forceScale = 0
