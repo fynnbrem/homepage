@@ -6,21 +6,23 @@
 - Elastic Impact
 - Multiple Balls
 - Inter-Ball Collision
-- Visual Effects
+- Visuals: Shadows and Trails
     - Shadow that moves relative to the pointer.
-        - Trail effect.
+    - Trail effect.
 
 # 🟡 Planned
 
 - Settings 1: Globals
     - Adjust Mouse Mass
     - Deactivate Mouse
-    - Adjust Gravity
+    - Adjust Gravity Force & Angle
     - Adjust Wall Elasticity
     - Remove Inter-Ball-Collision
     - Adjust Gravity-Distance-Scaling
         - pow(3) diminishes quite fast.
     - Adjust Trail Length
+- Refactor Files and Folders
+    - Match React's naming style.
 - Make the Balls use State
     - Update the state every tick with copies of the balls.
     - This prevents rendering of positions that only exist within a tick, due to an in-tick rerender.
@@ -32,24 +34,26 @@
         - Radius
         - Elasticity
         - Color
-- Visuals: Ball Trail
+- Visuals 2: Refined Trail Effect
     - Make the ball trail fade out with distance to it.
     - This requires an approach using segmented trails, and canvas for proper opacity mixing.
+    - Add an extra visual effect wherever two balls collide.
 - Dynamic Arena Size
     - Collide balls into the borders of the arena when shrinking.
 - Adaptive Layout
 - Settings 3
     - Pause
+- Use LocalStorage
 - Drag & Drop Balls
     - Works in Pause
     - Only while mouse is inactive (settings)
-- Settings 4: Performance
-    - Low Precision Mode (Reduce accuracy of calculations in favour of performance)
 
 # 🟠 Unplanned
 
 - Fix Issues with Collision
     - Balls can glitch through one another at high speeds.
     - Balls overlap slightly when sticking together.
+- Settings 4: Performance
+    - Low Precision Mode (Reduce accuracy of calculations in favour of performance)
 
 # 🔴Cancelled

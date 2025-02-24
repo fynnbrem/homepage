@@ -10,7 +10,7 @@
     - Even without Zero Collision Mode, you can observe this with the mouse gravity.
     - A minimal distance of 10px is enforced to prevent excessive acceleration.
 - Collisions with the wall are calculated before collisions between balls one every tick.
-    - This causes an unprecise position if the ball has multiple collisions within the same tick.
+    - This causes an imprecise position if the ball has multiple collisions within the same tick.
 - Balls can glitch through one another on high speeds.
     - One reason is that collisions of balls moving away from each other are ignored, e.g. when a ball is fast that it
       moves behind the other one within one tick.
