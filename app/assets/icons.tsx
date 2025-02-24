@@ -97,3 +97,32 @@ export function BallGravity(props: iconProps) {
         </Icon>
     )
 }
+
+export function WallBounce(props: iconProps) {
+    return (
+        <Icon {...props}>
+            <rect
+                style={{ fill: "currentcolor" }}
+                id="rect2"
+                width="2.9999998"
+                height="19.999998"
+                x="18.999998"
+                y="1.9999999" />
+            <path
+                id="path2"
+                style={{ fill: "currentcolor" }}
+                d="m 11.894881,8.4134399 a 4.4999995,4.4999995 0 0 1 -0.543636,1.3993978 l 5.768123,2.2572263 -9.9435786,4.767668 a 0.75,0.75 0 0 0 -0.3513998,0.999939 0.75,0.75 0 0 0 0.999939,0.351916 L 17.999935,13.310815 v -2.508374 z m 7.104993,2.7801921 v 1.637626 l 1.881022,-0.901754 z" />
+            <circle
+                style={{ fill: "currentcolor" }}
+                id="circle2"
+                cx="7.5"
+                cy="7.5"
+                r="3.4999998" />
+            <path
+                style={{ fill: "currentcolor" }}
+                id="path3"
+                d="m -7.9999993,13.488105 5.6394643,9.76784 -11.278929,-1e-6 z"
+                transform="matrix(-0.2033922,-0.35228577,0.35228577,-0.2033922,-1.6728521,18.925089)" />
+        </Icon>
+    )
+}

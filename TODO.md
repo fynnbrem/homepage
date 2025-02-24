@@ -14,13 +14,14 @@
 
 - Settings 1: Globals
     - Adjust Mouse Mass
-    - Deactivate Mouse
     - Adjust Gravity Force & Angle
     - Adjust Wall Elasticity
     - Remove Inter-Ball-Collision
     - Adjust Gravity-Distance-Scaling
         - pow(3) diminishes quite fast.
     - Adjust Trail Length
+- Add GitHub Link
+  - As a small badge at the bottom right of the page.
 - Refactor Files and Folders
     - Match React's naming style.
 - Make the Balls use State
