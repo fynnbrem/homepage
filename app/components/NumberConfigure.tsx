@@ -279,7 +279,12 @@ export default function NumberConfigure(props: Props) {
                             {slider}
                             {genericNumberField}
                         </Stack>
-                    :   <Switch color={"secondary"} />}
+                    :   <Switch
+                            color={"secondary"}
+                            checked={props.switchValue}
+                            onChange={(_, v) => props.onSwitchChange(v)}
+                        />
+                    }
                 </Stack>
                 {props.variant === "slider-dial" && (
                     <>

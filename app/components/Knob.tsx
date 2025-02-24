@@ -4,12 +4,7 @@ import { Vector2 } from "math.gl";
 import { NavigationRounded } from "@mui/icons-material";
 import { palette } from "@/app/lib/theme";
 import { useEventListener } from "usehooks-ts";
-
-/**Creates a vector with the `length`
- * that has a clockwise `angle` [rad] to the positive y-axis.*/
-function getRotatedVector(angle: number, length: number) {
-    return new Vector2(Math.sin(angle) * length, -Math.cos(angle) * length)
-}
+import { getRotatedVector } from "@/app/lib/math";
 
 /**Calculates the clockwise angle [rad] that the `vector` has to the positive y-axis.*/
 function getClockWiseAngle(vector: Vector2): number {

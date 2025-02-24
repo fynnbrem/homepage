@@ -1,17 +1,25 @@
-import React, { useState } from "react"
+import React from "react"
 import NumberConfigure from "@/app/components/NumberConfigure"
 import { AdsClick, GetApp, Route } from "@mui/icons-material"
 import { BallCollision, BallGravity, WallBounce } from "@/app/assets/icons"
+import { useConfiguration } from "@/app/providers/ConfigurationProvider"
+import { Box } from "@mui/material";
 
 const iconSize = 45
 
 export function WorldConfigure() {
-    const [sliderVal, setSliderVal] = useState(0)
-    const [dialVal, setDialVal] = useState(Math.PI)
-    const [switchVal, setSwitchVal] = useState(true)
+    const config = useConfiguration()
+
+    function handleWorldGravityMagnitudeChange(value: number) {
+        config.worldGravity[1]({ ...config.worldGravity[0], magnitude: value })
+    }
+
+    function handleWorldGravityAngleChange(value: number) {
+        config.worldGravity[1]({ ...config.worldGravity[0], angle: value })
+    }
 
     return (
-        <>
+        <Box>
             <NumberConfigure
                 title="Pointer Gravity"
                 variant={"slider"}
@@ -21,8 +29,8 @@ export function WorldConfigure() {
                 tooltip={
                     "The attraction that the pointer acts out towards other balls."
                 }
-                sliderValue={sliderVal}
-                onSliderChange={setSliderVal}
+                sliderValue={config.pointerGravity[0]}
+                onSliderChange={config.pointerGravity[1]}
                 squared={true}
                 precision={0}
             />
@@ -35,14 +43,14 @@ export function WorldConfigure() {
                 tooltip={
                     "The length of the ball trail. Each unit allows the trail to persist 1 tick longer."
                 }
-                sliderValue={sliderVal}
-                onSliderChange={setSliderVal}
+                sliderValue={config.trailLength[0]}
+                onSliderChange={config.trailLength[1]}
                 precision={0}
             />
             <NumberConfigure
                 title="Gravity Scaling"
                 variant={"slider"}
-                min={0}
+                min={0.6}
                 max={4}
                 icon={<BallGravity size={iconSize} />}
                 tooltip={
@@ -50,13 +58,14 @@ export function WorldConfigure() {
                         The exponent for the distance falloff for the gravity
                         between two balls.
                         <br />
-                        By default, that falloff scales squarely with the
-                        distance, meaning double the distance results in 1/4th
+                        In nature, that exponent is 2, meaning double the distance results in 1/4th
                         the gravitational force.
+                        <br />
+                        For more interaction between the balls, we default to 1.7, resulting in higher attraction.
                     </>
                 }
-                sliderValue={sliderVal}
-                onSliderChange={setSliderVal}
+                sliderValue={config.gravityScaling[0]}
+                onSliderChange={config.gravityScaling[1]}
                 precision={2}
             />
             <NumberConfigure
@@ -68,8 +77,8 @@ export function WorldConfigure() {
                 tooltip={
                     "The amount of kinetic energy that gets preserved when balls collide with the walls."
                 }
-                sliderValue={sliderVal}
-                onSliderChange={setSliderVal}
+                sliderValue={config.wallElasticity[0]}
+                onSliderChange={config.wallElasticity[1]}
                 precision={2}
             />
             <NumberConfigure
@@ -81,10 +90,10 @@ export function WorldConfigure() {
                 tooltip={
                     "The uniform force applied to all balls into a certain direction."
                 }
-                sliderValue={sliderVal}
-                onSliderChange={setSliderVal}
-                dialValue={dialVal}
-                onDialChange={setDialVal}
+                sliderValue={config.worldGravity[0].magnitude}
+                onSliderChange={handleWorldGravityMagnitudeChange}
+                dialValue={config.worldGravity[0].angle}
+                onDialChange={handleWorldGravityAngleChange}
                 squared={true}
                 precision={0}
             />
@@ -93,9 +102,9 @@ export function WorldConfigure() {
                 variant={"switch"}
                 icon={<BallCollision size={iconSize} />}
                 tooltip={"Whether balls collide with each other or not."}
-                switchValue={switchVal}
-                onSwitchChange={setSwitchVal}
+                switchValue={config.collision[0]}
+                onSwitchChange={config.collision[1]}
             />
-        </>
+        </Box>
     )
 }
