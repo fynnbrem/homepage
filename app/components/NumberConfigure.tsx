@@ -37,12 +37,14 @@ function Slider(props: {
 function GenericNumberField(props: {
     value: number
     onChange: (v: number) => void
+    precision: number,
 }) {
     return (
         <SmallTextField
             value={props.value}
             onChange={props.onChange}
             inputWidth={"6.3ch"}
+            precision={props.precision}
         />
     )
 }
@@ -227,6 +229,7 @@ export default function NumberConfigure(props: Props) {
             <GenericNumberField
                 value={props.sliderValue}
                 onChange={props.onSliderChange}
+                precision={props.precision}
             />
         )
     }

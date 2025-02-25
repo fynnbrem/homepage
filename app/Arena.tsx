@@ -286,6 +286,8 @@ function moveBalls(
  * @param box
  *  The box in which the ball is constrained.
  *  Must be the following coordinates: `[leftX, rightX, topY, bottomY]`
+ * @param elasticity
+ *  The wall elasticity.
  *  */
 function moveInBox(ball: Ball, box: [number, number, number, number], elasticity: number): void {
     const [left, right, top, bottom] = box
