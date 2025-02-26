@@ -246,6 +246,15 @@ function updateBallPath(balls: Ball[], maxHistory: number = 30) {
     })
 }
 
+/**Moves the balls by applying all active forces to it (global gravity, inter-ball gravity, collision)
+ * and moving them by their resulting velocity.
+ *
+ * @param balls
+ *  The balls to be moved.
+ * @param config
+ *  The configuration for the various forces.
+ *  @param mouseBall
+ *  The mouse (pointer) ball. If undefined, no force will be applied from it.*/
 function moveBalls(
     balls: Ball[],
     config: WorldConfigurationStatic,
@@ -262,7 +271,9 @@ function moveBalls(
     }
     // Apply mouse ball gravity.
     if (mouseBall) {
-        balls.forEach((b) => applyVoidBallGravity(b, mouseBall, config.gravityScaling))
+        balls.forEach((b) =>
+            applyVoidBallGravity(b, mouseBall, config.gravityScaling),
+        )
     }
     if (config.collision) {
         for (let i = 0; i < balls.length; i++) {
@@ -276,7 +287,9 @@ function moveBalls(
         }
     }
     // Apply the generated forces to the velocity and move the balls.
-    balls.forEach((b) => moveInBox(b, [0, arenaDim.x, 0, arenaDim.y], config.wallElasticity))
+    balls.forEach((b) =>
+        moveInBox(b, [0, arenaDim.x, 0, arenaDim.y], config.wallElasticity),
+    )
 }
 
 /** Moves the ball within the `box` so that it does not go above its boundaries.
@@ -289,7 +302,11 @@ function moveBalls(
  * @param elasticity
  *  The wall elasticity.
  *  */
-function moveInBox(ball: Ball, box: [number, number, number, number], elasticity: number): void {
+function moveInBox(
+    ball: Ball,
+    box: [number, number, number, number],
+    elasticity: number,
+): void {
     const [left, right, top, bottom] = box
 
     const vel = ball.vel
@@ -337,7 +354,11 @@ function applyBallGravity(ball1: Ball, ball2: Ball, distanceExp: number): void {
 }
 
 /** Modifies the velocity of the `ball` in accordance to the force generated between it and the `voidBall`.*/
-function applyVoidBallGravity(ball: Ball, voidBall: VoidBall, distanceExp: number): void {
+function applyVoidBallGravity(
+    ball: Ball,
+    voidBall: VoidBall,
+    distanceExp: number,
+): void {
     const force = getForce(ball, voidBall, distanceExp)
     const acc1 = force.scale(1 / ball.mass)
     ball.vel.add(acc1)
@@ -352,7 +373,11 @@ function applyGlobalGravity(ball: Ball, gravity: Directional) {
 
 /** Return the gravitational force between the two balls, determined by their distance and mass.
  *  The vector points from `ball1` to `ball2`.*/
-function getForce(ball1: VoidBall, ball2: VoidBall, distanceExp: number): Vector2 {
+function getForce(
+    ball1: VoidBall,
+    ball2: VoidBall,
+    distanceExp: number,
+): Vector2 {
     let distance = ball1.pos.distance(ball2.pos)
     let forceScale: number
 
@@ -368,6 +393,15 @@ function getForce(ball1: VoidBall, ball2: VoidBall, distanceExp: number): Vector
     return ball2.pos.clone().subtract(ball1.pos).scale(forceScale)
 }
 
+/**Simulates a collision between two overlapping balls.
+ * The balls will have their velocity changed according to the collision and their positions changed to remove the overlap.
+ *
+ * @param ball1
+ *  The first ball.
+ * @param ball2
+ *  The second ball.
+ * @param overlap
+ *  The overlap between the balls. This must be a positive number.*/
 function collideBalls(ball1: Ball, ball2: Ball, overlap: number) {
     const collisionNorm = ball2.pos.clone().subtract(ball1.pos).normalize()
     const relativeVel = ball2.vel.clone().subtract(ball1.vel)

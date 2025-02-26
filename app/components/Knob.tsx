@@ -11,6 +11,7 @@ function getClockWiseAngle(vector: Vector2): number {
     return -vector.verticalAngle() + Math.PI
 }
 
+/**A knob that can be rotated by dragging it. The values are in [rad].*/
 export default function Knob({
     value,
     onChange,
@@ -42,6 +43,8 @@ export default function Knob({
         onChange(getClockWiseAngle(pos))
     }
 
+    // Once tracking starts, it should keep tracking even if the pointer leaves the boundaries of the kob,
+    // So we use the global event listeners.
     useEventListener("pointerup", () => {
         isTracking.current = false
     })
@@ -62,6 +65,7 @@ export default function Knob({
 
     return (
         <Box sx={{ position: "relative", marginX: 0, marginY: 0 }}>
+            {/*The button is the interactive basis for the knob.*/}
             <Button
                 centerRipple
                 color={"secondary"}
@@ -76,6 +80,7 @@ export default function Knob({
                 onPointerDown={handlePointerDown}
                 ref={trackingElem}
             />
+            {/*Add an arrow and a dot at the center displaying the current location.*/}
             <Box sx={{ pointerEvents: "none" }}>
                 <NavigationRounded
                     sx={{
