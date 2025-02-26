@@ -17,13 +17,13 @@
     - Adjust Gravity-Distance-Scaling
         - pow(3) diminishes quite fast.
     - Adjust Trail Length
+- Add GitHub Link
+  - As a small badge at the bottom right of the page.
+- Refactor Files and Folders
+  - Match React's naming style.
 
 # 🟡 Planned
 
-- Add GitHub Link
-    - As a small badge at the bottom right of the page.
-- Refactor Files and Folders
-    - Match React's naming style.
 - Visuals 3: Background and Frame
     - Use smiley face as background.
     - Find a good frame for the arena and settings.
