@@ -37,7 +37,7 @@ function Slider(props: {
 function GenericNumberField(props: {
     value: number
     onChange: (v: number) => void
-    precision: number,
+    precision: number
 }) {
     return (
         <SmallTextField

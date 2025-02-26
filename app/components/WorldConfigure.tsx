@@ -3,7 +3,7 @@ import NumberConfigure from "@/app/components/NumberConfigure"
 import { AdsClick, GetApp, Route } from "@mui/icons-material"
 import { BallCollision, BallGravity, WallBounce } from "@/app/assets/icons"
 import { useConfiguration } from "@/app/providers/ConfigurationProvider"
-import { Box } from "@mui/material";
+import { Box } from "@mui/material"
 
 const iconSize = 45
 
@@ -58,10 +58,11 @@ export function WorldConfigure() {
                         The exponent for the distance falloff for the gravity
                         between two balls.
                         <br />
-                        In nature, that exponent is 2, meaning double the distance results in 1/4th
-                        the gravitational force.
+                        In nature, that exponent is 2, meaning double the
+                        distance results in 1/4th the gravitational force.
                         <br />
-                        For more interaction between the balls, we default to 1.7, resulting in higher attraction.
+                        For more interaction between the balls, we default to
+                        1.7, resulting in higher attraction.
                     </>
                 }
                 sliderValue={config.gravityScaling[0]}

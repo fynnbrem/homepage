@@ -27,5 +27,5 @@ export function floorTo(num: number, n: number = 0): number {
 /**Creates a vector with the `length`
  * that has a clockwise `angle` [rad] to the positive y-axis.*/
 export function getRotatedVector(angle: number, length: number) {
-    return new Vector2(Math.sin(angle) * length, -Math.cos(angle) * length);
+    return new Vector2(Math.sin(angle) * length, -Math.cos(angle) * length)
 }

@@ -9,9 +9,6 @@
 - Visuals: Shadows and Trails
     - Shadow that moves relative to the pointer.
     - Trail effect.
-
-# 🟡 Planned
-
 - Settings 1: Globals
     - Adjust Mouse Mass
     - Adjust Gravity Force & Angle
@@ -20,13 +17,16 @@
     - Adjust Gravity-Distance-Scaling
         - pow(3) diminishes quite fast.
     - Adjust Trail Length
+
+# 🟡 Planned
+
 - Add GitHub Link
-  - As a small badge at the bottom right of the page.
+    - As a small badge at the bottom right of the page.
 - Refactor Files and Folders
     - Match React's naming style.
 - Visuals 3: Background and Frame
-  - Use smiley face as background.
-  - Find a good frame for the arena and settings.
+    - Use smiley face as background.
+    - Find a good frame for the arena and settings.
 - Make the Balls use State
     - Update the state every tick with copies of the balls.
     - This prevents rendering of positions that only exist within a tick, due to an in-tick rerender.
