@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Box } from "@mui/material";
 import { useEventListener } from "usehooks-ts";
 
@@ -15,7 +15,10 @@ function getScale(width: number, targetWidth: number): number {
 
 /**The background.
  * It has a default size of 1920x1080 pixels.
- * If the screen has a higher resolution, it will be scaled up to fit.*/
+ * If the screen has a higher resolution, it will be scaled up to fit.
+ *
+ * This component must be loaded dynamically as it requires `window` to scale accordingly.
+ * To smoothen this out, it uses a fade-in animation.*/
 export default function Background({ color }: { color: string }) {
     const baseWidth = 1920
     const [scale, setScale] = useState(getScale(baseWidth, window.innerWidth))
@@ -24,10 +27,12 @@ export default function Background({ color }: { color: string }) {
         setScale(getScale(baseWidth, window.innerWidth))
     }
 
+
     useEventListener("resize", updateScale)
 
     return (
         <Box
+            className={"svg-wrapper"}
             sx={{
                 position: "fixed",
                 transform: `scale(${scale})`,
