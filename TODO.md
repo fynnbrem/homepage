@@ -18,15 +18,15 @@
         - pow(3) diminishes quite fast.
     - Adjust Trail Length
 - Add GitHub Link
-  - As a small badge at the bottom right of the page.
+    - As a small badge at the bottom right of the page.
 - Refactor Files and Folders
-  - Match React's naming style.
+    - Match React's naming style.
+- Visuals 3: Background and Frame
+    - Use smiley face as background.
+        - Find a good frame for the arena and settings.
 
 # 🟡 Planned
 
-- Visuals 3: Background and Frame
-    - Use smiley face as background.
-    - Find a good frame for the arena and settings.
 - Make the Balls use State
     - Update the state every tick with copies of the balls.
     - This prevents rendering of positions that only exist within a tick, due to an in-tick rerender.
@@ -38,6 +38,7 @@
         - Radius
         - Elasticity
         - Color
+- Refactor: Split up `Arena.tsx`
 - Visuals 2: Refined Trail Effect
     - Make the ball trail fade out with distance to it.
     - This requires an approach using segmented trails, and canvas for proper opacity mixing.
@@ -45,6 +46,8 @@
 - Dynamic Arena Size
     - Collide balls into the borders of the arena when shrinking.
 - Adaptive Layout
+- Light Mode
+    - Also add a switch for manual selection.
 - Settings 3
     - Pause
 - Use LocalStorage
@@ -59,5 +62,9 @@
     - Balls overlap slightly when sticking together.
 - Settings 4: Performance
     - Low Precision Mode (Reduce accuracy of calculations in favour of performance)
+- Visuals: Bounce Effect
+    - A bounce effect when a ball collides with the wall.
+    - Deform the wall?
+    - Make the box shake?
 
 # 🔴Cancelled

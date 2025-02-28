@@ -8,6 +8,7 @@ import {
     WorldConfigurationStatic,
 } from "@/app/providers/ConfigurationProvider"
 import { getRotatedVector } from "@/app/lib/math"
+import { Box } from "@mui/material"
 
 type VoidBall = {
     pos: Vector2
@@ -21,7 +22,7 @@ type Ball = VoidBall & {
     path: Vector2[]
 }
 
-const arenaDim = new Vector2(500, 700)
+const arenaDim = new Vector2(600, 700)
 
 const tps = 60
 const interval = Math.round(1000 / tps)
@@ -77,8 +78,9 @@ export default function Arena() {
     const mouseBallActive = useRef(false)
 
     function handlePointerMove(e: React.PointerEvent<HTMLDivElement>): void {
-        mousePos.current.x = e.clientX
-        mousePos.current.y = e.clientY
+        const rect = e.currentTarget.getBoundingClientRect()
+        mousePos.current.x = e.clientX - rect.left
+        mousePos.current.y = e.clientY - rect.top
         // Handle activation of the mouse ball here so it also works independently form the pointer-enter-event.
         // (Handles the case where the cursor is already within the frame when it mounts).
         mouseBallActive.current = true
@@ -113,8 +115,8 @@ export default function Arena() {
     }, [])
 
     return (
-        <div
-            style={{
+        <Box
+            sx={{
                 width: arenaDim.x,
                 height: arenaDim.y,
                 background: "#2A2A2A",
@@ -122,6 +124,8 @@ export default function Arena() {
                 overflow: "hidden",
                 position: "relative",
                 cursor: "none",
+                borderRadius: 1,
+                boxShadow: "inset 0 0 4px rgba(0, 0, 0, 0.8)",
             }}
             ref={arenaRef}
             onPointerMove={handlePointerMove}
@@ -218,7 +222,7 @@ export default function Arena() {
                     />
                 )
             })}
-        </div>
+        </Box>
     )
 }
 

@@ -1,11 +1,10 @@
 import React, { useState } from "react";
 import { alpha, Box, IconButton, Slider as MuiSlider, Stack, Switch, Tooltip } from "@mui/material";
-import { orange } from "@mui/material/colors";
-import Knob from "@/app/components/Knob";
+import Knob from "@/app/arena/components/Knob";
 import { palette } from "@/app/lib/theme";
 import { radToDegree, roundTo } from "@/app/lib/math";
 import { InfoOutlined } from "@mui/icons-material";
-import { SmallTextField } from "@/app/components/TextFieldSpecial";
+import { SmallTextField } from "@/app/arena/components/TextFieldSpecial";
 
 /**The slider. Requires the transformed values.*/
 function Slider(props: {
@@ -250,12 +249,13 @@ export default function NumberConfigure(props: Props) {
             sx={{
                 width: 350,
                 margin: 1,
-                background: orange[700],
+                background: palette.primary.main,
                 // Define an all-around padding and make it larger to the right
                 // to match the left side which appears lighter due to the icon.
                 padding: 1,
                 paddingRight: 3,
                 borderRadius: 6,
+                boxShadow: "inset 0 0 5px rgba(0, 0, 0, 0.5)",
             }}
         >
             <Stack

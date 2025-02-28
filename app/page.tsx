@@ -1,16 +1,15 @@
 "use client"
-import Arena from "@/app/Arena"
-import { Stack } from "@mui/material"
-import { WorldConfigure } from "@/app/components/WorldConfigure"
 import GithubBadge from "@/app/components/GithubBadge"
+import Background from "@/app/assets/Background"
+import { grey } from "@mui/material/colors"
+import React from "react"
+import ArenaBox from "@/app/arena/ArenaBox"
 
 export default function Home() {
     return (
         <>
-            <Stack direction={"row"}>
-                <Arena />
-                <WorldConfigure />
-            </Stack>
+            <Background color={grey[800]} />
+            <ArenaBox />
             <GithubBadge link={"https://github.com/fynnbrem/homepage"} />
         </>
     )

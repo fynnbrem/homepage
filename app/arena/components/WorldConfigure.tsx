@@ -1,9 +1,8 @@
 import React from "react"
-import NumberConfigure from "@/app/components/NumberConfigure"
+import NumberConfigure from "@/app/arena/components/NumberConfigure"
 import { AdsClick, GetApp, Route } from "@mui/icons-material"
 import { BallCollision, BallGravity, WallBounce } from "@/app/assets/Icons"
 import { useConfiguration } from "@/app/providers/ConfigurationProvider"
-import { Box } from "@mui/material"
 
 const iconSize = 45
 
@@ -19,7 +18,7 @@ export function WorldConfigure() {
     }
 
     return (
-        <Box>
+        <>
             <NumberConfigure
                 title="Pointer Gravity"
                 variant={"slider"}
@@ -62,7 +61,7 @@ export function WorldConfigure() {
                         distance results in 1/4th the gravitational force.
                         <br />
                         For more interaction between the balls, we default to
-                        1.7, resulting in higher attraction.
+                        1.7.
                     </>
                 }
                 sliderValue={config.gravityScaling[0]}
@@ -106,6 +105,6 @@ export function WorldConfigure() {
                 switchValue={config.collision[0]}
                 onSwitchChange={config.collision[1]}
             />
-        </Box>
+        </>
     )
 }

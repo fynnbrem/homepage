@@ -37,6 +37,7 @@ export function SmallTextField(props: {
                     "&.Mui-focused": {
                         background: palette.secondary.main,
                     },
+                    color: "#1d1d1d",
                 },
                 "& .MuiInputBase-input": {
                     fontSize: "small",
