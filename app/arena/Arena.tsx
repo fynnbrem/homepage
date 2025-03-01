@@ -24,7 +24,7 @@ type Ball = VoidBall & {
 
 const arenaDim = new Vector2(600, 700)
 
-const tps = 60
+const tps = 6000
 const interval = Math.round(1000 / tps)
 
 const globalBalls: Ball[] = [
@@ -64,10 +64,14 @@ const mouseBall: VoidBall = {
 
 export default function Arena() {
     const mousePos = useRef(new Vector2(0, 0))
+    const lastTickTime = useRef(0)
+    const tickCount = useRef(0)
 
     const config = useConfiguration()
     const configRef = useRef(config)
     configRef.current = config
+
+
 
     /*We use a dummy state to update the component on every tick.
      * We do this because we have no reason to utilize React's optimizations as every object changes on every tick.*/
@@ -107,6 +111,15 @@ export default function Arena() {
                 mouseBallActive.current ? mouseBall : undefined,
             )
             forceRerender((v) => !v)
+
+            tickCount.current += 1
+            if(tickCount.current % 32 == 0) {
+                const currentTime = Date.now()
+                const tickInterval = currentTime - lastTickTime.current
+                lastTickTime.current = currentTime
+                console.log(Math.round(32000 / tickInterval))
+            }
+
         }
 
         const intervalTimer = setInterval(doTick, interval)

@@ -49,7 +49,7 @@ export function WorldConfigure() {
             <NumberConfigure
                 title="Gravity Scaling"
                 variant={"slider"}
-                min={0.6}
+                min={1}
                 max={4}
                 icon={<BallGravity size={iconSize} />}
                 tooltip={

@@ -31,6 +31,7 @@
     - Update the state every tick with copies of the balls.
     - This prevents rendering of positions that only exist within a tick, due to an in-tick rerender.
     - Evaluate performance cost.
+- Refactor: Split up `Arena.tsx`
 - Settings 2: Balls
     - Add/Remove Balls
     - Configure Balls
@@ -38,20 +39,24 @@
         - Radius
         - Elasticity
         - Color
-- Refactor: Split up `Arena.tsx`
-- Visuals 2: Refined Trail Effect
+- Visuals 2: Balls
     - Make the ball trail fade out with distance to it.
     - This requires an approach using segmented trails, and canvas for proper opacity mixing.
     - Add an extra visual effect wherever two balls collide.
-- Dynamic Arena Size
+    - Add a inset lightning effect so the balls look less flat.
+- Interaction: Dynamic Arena Size
     - Collide balls into the borders of the arena when shrinking.
-- Adaptive Layout
-- Light Mode
+- Visuals: Adaptive Layout
+- Interaction: Better Collision
+  - Collision Interpolation (For high speed collisions)
+  - Multi Collision (Wall + Ball Collision)
+  - Noise Flooring
+- Visuals: Light Mode
     - Also add a switch for manual selection.
 - Settings 3
     - Pause
-- Use LocalStorage
-- Drag & Drop Balls
+- Interaction: Use LocalStorage
+- Interaction: Drag & Drop Balls
     - Works in Pause
     - Only while mouse is inactive (settings)
 
