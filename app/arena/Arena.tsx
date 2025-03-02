@@ -22,9 +22,11 @@ type Ball = VoidBall & {
     path: Vector2[]
 }
 
+
+
 const arenaDim = new Vector2(600, 700)
 
-const tps = 6000
+const tps = 60
 const interval = Math.round(1000 / tps)
 
 const globalBalls: Ball[] = [
@@ -67,15 +69,11 @@ export default function Arena() {
     const lastTickTime = useRef(0)
     const tickCount = useRef(0)
 
+    const [balls, setBalls] = useState(cloneBalls(globalBalls))
+
     const config = useConfiguration()
     const configRef = useRef(config)
     configRef.current = config
-
-
-
-    /*We use a dummy state to update the component on every tick.
-     * We do this because we have no reason to utilize React's optimizations as every object changes on every tick.*/
-    const [, forceRerender] = useState(true)
 
     const arenaRef: RefObject<HTMLDivElement> = useRef(null!)
 
@@ -110,9 +108,10 @@ export default function Arena() {
                 config,
                 mouseBallActive.current ? mouseBall : undefined,
             )
-            forceRerender((v) => !v)
+            setBalls(cloneBalls(globalBalls))
 
             tickCount.current += 1
+            // Update the TPS every 32 Ticks (2 ** 5)
             if(tickCount.current % 32 == 0) {
                 const currentTime = Date.now()
                 const tickInterval = currentTime - lastTickTime.current
@@ -151,7 +150,7 @@ export default function Arena() {
             These are not part of the ball elements themselves for the following reasons:
                 - Balls must not cast their shadow on other balls, but rather on the layer behind all balls.
                 - The pointer light must be rendered between balls and shadows.*/}
-            {globalBalls.map((b, i) => {
+            {balls.map((b, i) => {
                 const shadowOffset = getShadowOffset(
                     b.pos,
                     mousePos.current,
@@ -195,7 +194,7 @@ export default function Arena() {
                 width={"100%"}
                 height={"100%"}
             >
-                {globalBalls.map((b, i) => {
+                {balls.map((b, i) => {
                     const path = b.path
                         .map((pos) => `${pos.x},${pos.y}`)
                         .join(" ")
@@ -219,7 +218,7 @@ export default function Arena() {
             </svg>
 
             {/*Render the balls above the light.*/}
-            {globalBalls.map((b, i) => {
+            {balls.map((b, i) => {
                 return (
                     <div
                         key={i}
@@ -254,6 +253,22 @@ function getShadowOffset(
 ): Vector2 {
     const distance = pos.clone().subtract(center)
     return distance.scale(1 / units)
+}
+
+function cloneBall(b: Ball) {
+    return {
+        pos: b.pos.clone(),
+        mass: b.mass,
+        vel: b.vel.clone(),
+        radius: b.radius,
+        elasticity: b.elasticity,
+        color: b.color,
+        path: b.path.map(v => v.clone()),
+    }
+}
+
+function cloneBalls(balls: Ball[]) {
+    return balls.map(b => cloneBall(b))
 }
 
 function updateBallPath(balls: Ball[], maxHistory: number = 30) {
