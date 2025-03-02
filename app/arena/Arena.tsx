@@ -65,24 +65,29 @@ const mouseBall: VoidBall = {
 }
 
 export default function Arena() {
-    const mousePos = useRef(new Vector2(0, 0))
+    const mousePosRef = useRef(new Vector2(0, 0))
+    const mouseBallActive = useRef(false)
+    const [mousePos, setMousePos] = useState(new Vector2(0, 0));
+
     const lastTickTime = useRef(0)
+
     const tickCount = useRef(0)
 
     const [balls, setBalls] = useState(cloneBalls(globalBalls))
-
     const config = useConfiguration()
     const configRef = useRef(config)
+
     configRef.current = config
 
     const arenaRef: RefObject<HTMLDivElement> = useRef(null!)
 
-    const mouseBallActive = useRef(false)
-
+    /**Updates the current mouse position to the ref and state.
+     * Also forces `mouseBallActive` to `true`.*/
     function handlePointerMove(e: React.PointerEvent<HTMLDivElement>): void {
         const rect = e.currentTarget.getBoundingClientRect()
-        mousePos.current.x = e.clientX - rect.left
-        mousePos.current.y = e.clientY - rect.top
+        mousePosRef.current.x = e.clientX - rect.left
+        mousePosRef.current.y = e.clientY - rect.top
+        setMousePos(mousePosRef.current.clone())
         // Handle activation of the mouse ball here so it also works independently form the pointer-enter-event.
         // (Handles the case where the cursor is already within the frame when it mounts).
         mouseBallActive.current = true
@@ -94,8 +99,8 @@ export default function Arena() {
         }
 
         function updateMouseBall(config: WorldConfigurationStatic) {
-            mouseBall.pos.x = mousePos.current.x
-            mouseBall.pos.y = mousePos.current.y
+            mouseBall.pos.x = mousePosRef.current.x
+            mouseBall.pos.y = mousePosRef.current.y
             mouseBall.mass = config.pointerGravity
         }
 
@@ -153,7 +158,7 @@ export default function Arena() {
             {balls.map((b, i) => {
                 const shadowOffset = getShadowOffset(
                     b.pos,
-                    mousePos.current,
+                    mousePos,
                     25,
                 )
                 return (
@@ -178,8 +183,8 @@ export default function Arena() {
                 <div
                     style={{
                         position: "absolute",
-                        left: mousePos.current.x - 35,
-                        top: mousePos.current.y - 35,
+                        left: mousePos.x - 35,
+                        top: mousePos.y - 35,
                         borderRadius: "50%",
                         width: 70,
                         height: 70,
