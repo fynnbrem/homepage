@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Box } from "@mui/material";
 import { useEventListener } from "usehooks-ts";
 
@@ -26,7 +26,6 @@ export default function Background({ color }: { color: string }) {
     function updateScale() {
         setScale(getScale(baseWidth, window.innerWidth))
     }
-
 
     useEventListener("resize", updateScale)
 

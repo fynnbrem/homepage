@@ -14,7 +14,7 @@ import {
     updateBallPath,
     VoidBall,
 } from "@/app/lib/ball-movement/model"
-import ArenaContent from "@/app/arena/ArenaContent";
+import ArenaContent from "@/app/arena/ArenaContent"
 
 const arenaDim = new Vector2(600, 700)
 
@@ -143,9 +143,11 @@ export default function Arena() {
             onPointerLeave={() => (mouseBallActive.current = false)}
             onPointerCancel={() => (mouseBallActive.current = false)}
         >
-            <ArenaContent balls={balls} isMouseActive={mouseBallActive.current} mousePos={mousePos}/>
+            <ArenaContent
+                balls={balls}
+                isMouseActive={mouseBallActive.current}
+                mousePos={mousePos}
+            />
         </Box>
     )
 }
-
-

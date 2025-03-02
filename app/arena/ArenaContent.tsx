@@ -1,6 +1,6 @@
-import React from "react"
-import { Vector2 } from "math.gl"
-import { Ball } from "@/app/lib/ball-movement/model"
+import React from "react";
+import { Vector2 } from "math.gl";
+import { Ball } from "@/app/lib/ball-movement/model";
 
 /**The components contained within the arena.
  * These are:
@@ -32,7 +32,7 @@ export default function ArenaContent({
             <BallTrails balls={balls} />
 
             {/*Render the balls above the light.*/}
-            <Balls balls={balls}/>
+            <Balls balls={balls} />
         </>
     )
 }
@@ -121,7 +121,7 @@ function BallTrails({ balls }: { balls: Ball[] }) {
     )
 }
 
-/**The balls. These are just plain circles, with appearance and position by the respective ball.*/
+/**The balls. These are just plain circles, with appearance and position by the respective balls.*/
 function Balls({ balls }: { balls: Ball[] }) {
     return (
         <>
