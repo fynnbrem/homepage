@@ -1,3 +1,4 @@
+"use client";
 import * as React from "react";
 import { useState } from "react";
 import { Box } from "@mui/material";
@@ -36,6 +37,8 @@ export default function Background({ color }: { color: string }) {
                 position: "fixed",
                 transform: `scale(${scale})`,
                 transformOrigin: "top left",
+                top: 0,
+                left: 0,
                 width: "100vw",
                 height: "100vh",
                 zIndex: -1,
@@ -125,11 +128,6 @@ function BackgroundGraphic({ color }: { color: string }) {
                     />
                 </symbol>
             </defs>
-            <rect
-                width="100%"
-                height="100%"
-                fill="#2a2a2a"
-            />
             <use
                 xlinkHref="#a"
                 transform="rotate(27.32 242.131 2230.908) scale(.51)"

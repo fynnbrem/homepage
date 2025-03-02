@@ -3,6 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google"
 import "./globals.css"
 import Head from "next/head"
 import Providers from "@/app/providers/Providers"
+import { grey } from "@mui/material/colors"
+import DynamicBackground from "@/app/assets/DynamicBackground"
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -37,6 +39,7 @@ export default function RootLayout({
                 className={`${geistSans.variable} ${geistMono.variable} antialiased`}
             >
                 <Providers>{children}</Providers>
+                <DynamicBackground color={grey[800]} />
             </body>
         </html>
     )
