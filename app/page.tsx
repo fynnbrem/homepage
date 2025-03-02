@@ -3,7 +3,7 @@ import GithubBadge from "@/app/components/GithubBadge"
 
 import { grey } from "@mui/material/colors"
 import React from "react"
-import ArenaBox from "@/app/arena/ArenaBox"
+import ArenaFrame from "@/app/arena/ArenaFrame"
 import dynamic from "next/dynamic"
 
 const Background = dynamic(() => import("@/app/assets/Background"), {
@@ -14,7 +14,7 @@ export default function Home() {
     return (
         <>
             <Background color={grey[800]} />
-            <ArenaBox />
+            <ArenaFrame />
             <GithubBadge link={"https://github.com/fynnbrem/homepage"} />
         </>
     )

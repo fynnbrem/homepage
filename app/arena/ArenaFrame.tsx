@@ -5,9 +5,9 @@ import React from "react"
 import { theme } from "@/app/lib/theme"
 
 const elevation = 4
-/**The box for the arena.
+/**The frame for the arena.
  * Contains visual elements, the arena and its configuration components.*/
-export default function ArenaBox() {
+export default function ArenaFrame() {
     return (
         <Stack alignItems={"center"}>
             <Paper
