@@ -29,3 +29,13 @@ export function floorTo(num: number, n: number = 0): number {
 export function getRotatedVector(angle: number, length: number) {
     return new Vector2(Math.sin(angle) * length, -Math.cos(angle) * length)
 }
+
+/**Returns a random integer in the range `[start;stop)`.*/
+export function randomInt(start: number = 0, stop: number = 1) {
+    return Math.floor(Math.random() * (stop - start)) + start
+}
+
+/**Returns a random item from the `items`.*/
+export function getRandomItem<T>(items: T[]): T {
+    return items[randomInt(0, items.length)]
+}
