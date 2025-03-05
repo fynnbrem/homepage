@@ -5,6 +5,7 @@ export type VoidBall = {
     mass: number
 }
 export type Ball = VoidBall & {
+    id: string
     vel: Vector2
     radius: number
     elasticity: number
@@ -14,6 +15,7 @@ export type Ball = VoidBall & {
 
 function cloneBall(b: Ball) {
     return {
+        id: b.id,
         pos: b.pos.clone(),
         mass: b.mass,
         vel: b.vel.clone(),

@@ -12,18 +12,12 @@ import { Updater } from "use-immer"
 import { Box, IconButton, Stack, TextField, Tooltip } from "@mui/material"
 import { Brush, DeleteOutlined } from "@mui/icons-material"
 import { BallSize, WallBounce, Weight } from "@/app/assets/Icons"
+import { BallConfig } from "@/app/ball-table/model"
+import { globalBalls } from "@/app/arena/Arena";
 
 const iconSize = 32
 
-export type Ball = {
-    id: string
-    color: string
-    mass: number
-    radius: number
-    elasticity: number
-}
-
-function BallThumbnail({ ball }: { ball: Ball }) {
+function BallThumbnail({ ball }: { ball: BallConfig }) {
     let diameter = ball.radius * 1.25
     diameter = Math.min(40, Math.max(5, diameter))
     return (
@@ -47,8 +41,17 @@ function findById<T extends { id: string }>(
     return objects.find((v) => v.id === id)
 }
 
+/**Returns the index of the object in `objects` that has `.id === id`. */
+function findIndexById<T extends { id: string }>(
+    objects: T[],
+    id: string,
+): number | undefined {
+    const index = objects.findIndex((v) => v.id === id)
+    return index !== -1 ? index : undefined
+}
+
 function CompleteTableRow(props: {
-    ball: Ball
+    ball: BallConfig
     onColorChange: (e: React.ChangeEvent<HTMLInputElement>) => string
     onFocus: () => void
     onBlur: () => void
@@ -153,8 +156,8 @@ export default function BallTableContent({
     balls,
     onBallsChange,
 }: {
-    balls: Ball[]
-    onBallsChange: Updater<Ball[]>
+    balls: BallConfig[]
+    onBallsChange: Updater<BallConfig[]>
 }) {
     const activeColorChange = useRef("#ffffff")
 
@@ -162,6 +165,8 @@ export default function BallTableContent({
         onBallsChange((draft) => {
             const item = findById(draft, id)
             if (item) item.mass = value
+            const ball = findById(globalBalls, id)
+            if (ball) ball.mass = value
         })
     }
 
@@ -169,6 +174,8 @@ export default function BallTableContent({
         onBallsChange((draft) => {
             const item = findById(draft, id)
             if (item) item.radius = value
+            const ball = findById(globalBalls, id)
+            if (ball) ball.radius = value
         })
     }
 
@@ -176,6 +183,8 @@ export default function BallTableContent({
         onBallsChange((draft) => {
             const item = findById(draft, id)
             if (item) item.elasticity = value
+            const ball = findById(globalBalls, id)
+            if (ball) ball.elasticity = value
         })
     }
 
@@ -183,11 +192,15 @@ export default function BallTableContent({
         onBallsChange((draft) => {
             const item = findById(draft, id)
             if (item) item.color = value
+            const ball = findById(globalBalls, id)
+            if (ball) ball.color = value
         })
     }
 
     function deleteBall(id: string) {
         onBallsChange((draft) => draft.filter((b) => b.id !== id))
+        const ball = findIndexById(globalBalls, id)
+        if (ball !== undefined) globalBalls.splice(ball, 1)
     }
 
     return (

@@ -1,9 +1,11 @@
 import { alpha, Box, Paper, Stack } from "@mui/material"
-import Arena from "@/app/arena/Arena"
 import { WorldConfigure } from "@/app/arena/components/WorldConfigure"
 import React from "react"
-import { spacing, theme } from "@/app/lib/theme";
+import { spacing, theme } from "@/app/lib/theme"
 import BallTable from "@/app/ball-table/BallTable"
+import { Updater, useImmer } from "use-immer";
+import { BallConfig, configFromBall } from "@/app/ball-table/model";
+import Arena, { globalBalls } from "@/app/arena/Arena";
 
 const elevation = 4
 
@@ -19,7 +21,7 @@ function WorldConfigurePaper() {
                     background: alpha(theme.palette.background.default, 0.6),
                     borderRadius: 8,
                     padding: 1,
-                    height: "100%"
+                    height: "100%",
                 }}
                 elevation={elevation}
             >
@@ -31,13 +33,13 @@ function WorldConfigurePaper() {
 
 function BallTablePaper() {
     return (
-        <Box sx={{ paddingY: 4}}>
+        <Box sx={{ paddingY: 4 }}>
             <Paper
                 sx={{
                     background: alpha(theme.palette.background.default, 0.6),
                     borderRadius: 8,
                     padding: 1,
-                    height: "100%"
+                    height: "100%",
                 }}
                 elevation={elevation}
             >
@@ -51,6 +53,7 @@ const padding = 2
 /**The frame for the arena.
  * Contains visual elements, the arena and its configuration components.*/
 export default function ArenaFrame() {
+
     return (
         <Stack alignItems={"center"}>
             <Paper
@@ -59,7 +62,7 @@ export default function ArenaFrame() {
                     p: padding,
                     background: alpha(theme.palette.background.default, 0.6),
                     borderRadius: 2,
-                    height: 700  + padding * spacing * 2,
+                    height: 700 + padding * spacing * 2,
                 }}
                 elevation={10}
             >
@@ -70,7 +73,7 @@ export default function ArenaFrame() {
                 >
                     <WorldConfigurePaper />
                     <Arena />
-                    <BallTablePaper />
+                    <BallTablePaper/>
                 </Stack>
             </Paper>
         </Stack>

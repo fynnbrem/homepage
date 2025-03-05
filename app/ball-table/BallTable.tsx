@@ -2,16 +2,18 @@ import { Button, Stack, Tooltip } from "@mui/material"
 import { Add } from "@mui/icons-material"
 import React from "react"
 import { v4 } from "uuid"
-import BallTableContent, { Ball } from "@/app/ball-table/BallTableContent"
-import { useImmer } from "use-immer"
+import BallTableContent from "@/app/ball-table/BallTableContent"
+import { Updater, useImmer } from "use-immer"
 import { getRandomItem } from "@/app/lib/math"
+import { BallConfig, configFromBall, getNewBall } from "@/app/ball-table/model";
+import { globalBalls } from "@/app/arena/Arena";
 
 function createData(
     color: string,
     mass: number,
     radius: number,
     elasticity: number,
-): Ball {
+): BallConfig {
     return { id: v4(), color, mass, radius, elasticity }
 }
 
@@ -45,7 +47,7 @@ const randomParams = {
     ],
 }
 
-function getRandomBall(): Ball {
+function getRandomBall(): BallConfig {
     return {
         id: v4(),
         color: getRandomItem(randomParams.color),
@@ -56,12 +58,14 @@ function getRandomBall(): Ball {
 }
 
 export default function BallTable() {
-    const [balls, setBalls] = useImmer(baseRows)
+    const [balls, setBalls] = useImmer(globalBalls.map(configFromBall))
 
     function addRandomBall() {
+        const config = getRandomBall()
         setBalls((draft) => {
-            draft.push(getRandomBall())
+            draft.push(config)
         })
+        globalBalls.push(getNewBall(config))
     }
 
     return (

@@ -21,8 +21,14 @@ const arenaDim = new Vector2(600, 700)
 const tps = 60
 const interval = Math.round(1000 / tps)
 
-const globalBalls: Ball[] = [
+const mouseBall: VoidBall = {
+    pos: new Vector2(0, 0),
+    mass: 1500,
+}
+
+export const globalBalls: Ball[] = [
     {
+        id: "abb9b19c-7946-4d60-a12d-cd5d38323f5c",
         pos: new Vector2(100, 100),
         vel: new Vector2(10, 0),
         mass: 100,
@@ -32,6 +38,7 @@ const globalBalls: Ball[] = [
         path: [],
     },
     {
+        id: "32e51e1b-b922-4059-a37c-7ceb1ccef856",
         pos: new Vector2(225, 100),
         vel: new Vector2(5, 5),
         mass: 200,
@@ -41,6 +48,7 @@ const globalBalls: Ball[] = [
         path: [],
     },
     {
+        id: "fb13f223-081d-4ada-9f51-2c4302d08df6",
         pos: new Vector2(150, 150),
         vel: new Vector2(0, -2),
         mass: 50,
@@ -50,12 +58,6 @@ const globalBalls: Ball[] = [
         path: [],
     },
 ]
-
-const mouseBall: VoidBall = {
-    pos: new Vector2(0, 0),
-    mass: 1500,
-}
-
 export default function Arena() {
     const mousePosRef = useRef(new Vector2(0, 0))
     const mouseBallActive = useRef(false)
@@ -114,7 +116,7 @@ export default function Arena() {
                 const currentTime = Date.now()
                 const tickInterval = currentTime - lastTickTime.current
                 lastTickTime.current = currentTime
-                console.log(Math.round(32000 / tickInterval))
+                // console.log(Math.round(32000 / tickInterval))
             }
         }
 
