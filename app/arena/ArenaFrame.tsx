@@ -2,11 +2,12 @@ import { alpha, Box, Paper, Stack } from "@mui/material"
 import { WorldConfigure } from "@/app/arena/components/WorldConfigure"
 import React from "react"
 import { spacing, theme } from "@/app/lib/theme"
-import BallTable from "@/app/ball-table/BallTable"
+import BallTableFrame from "@/app/ball-table/BallTableFrame"
 import Arena from "@/app/arena/Arena"
 
 const elevation = 4
 
+/**The paper containing the `<WorldConfigure>`.*/
 function WorldConfigurePaper() {
     return (
         <Box
@@ -29,6 +30,7 @@ function WorldConfigurePaper() {
     )
 }
 
+/**The paper containing the `<BallTable>`.*/
 function BallTablePaper() {
     return (
         <Box sx={{ paddingY: 4 }}>
@@ -41,7 +43,7 @@ function BallTablePaper() {
                 }}
                 elevation={elevation}
             >
-                <BallTable />
+                <BallTableFrame />
             </Paper>
         </Box>
     )

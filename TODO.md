@@ -39,7 +39,7 @@
         - Radius
         - Elasticity
         - Color
-    - Highlight Selected Ball
+    - Tooltip
 - Visuals 2: Balls
     - Make the ball trail fade out with distance to it.
     - This requires an approach using segmented trails, and canvas for proper opacity mixing.
