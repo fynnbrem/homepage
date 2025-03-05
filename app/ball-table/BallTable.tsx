@@ -1,4 +1,4 @@
-import { Box, Button, Stack } from "@mui/material";
+import { Button, Stack, Tooltip } from "@mui/material"
 import { Add } from "@mui/icons-material"
 import React from "react"
 import { v4 } from "uuid"
@@ -65,19 +65,30 @@ export default function BallTable() {
     }
 
     return (
-        <Stack width={"100%"} height={600} overflow={"hidden"}>
+        <Stack
+            width={"100%"}
+            height={"100%"}
+            overflow={"hidden"}
+        >
             <BallTableContent
                 balls={balls}
                 onBallsChange={setBalls}
             />
-            <Button
-                fullWidth
-                variant={"contained"}
-                sx={{ borderTopLeftRadius: 0, borderTopRightRadius: 0 }}
-                onClick={addRandomBall}
-            >
-                <Add />
-            </Button>
+            <Tooltip title={"Create New Ball"}>
+                <Button
+                    fullWidth
+                    variant={"contained"}
+                    sx={{
+                        borderTopLeftRadius: 0,
+                        borderTopRightRadius: 0,
+                        borderBottomRightRadius: 24,
+                        borderBottomLeftRadius: 24,
+                    }}
+                    onClick={addRandomBall}
+                >
+                    <Add />
+                </Button>
+            </Tooltip>
         </Stack>
     )
 }

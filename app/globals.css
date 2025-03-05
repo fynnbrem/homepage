@@ -11,6 +11,7 @@ body {
     color: var(--foreground);
     background: var(--background);
     font-family: Roboto, Segoe UI, sans-serif;
+    scrollbar-color: rgba(239, 108, 0, 0.5) #00000000;
 }
 
 .svg-wrapper {
@@ -26,3 +27,6 @@ body {
         opacity: 1;
     }
 }
+
+
+

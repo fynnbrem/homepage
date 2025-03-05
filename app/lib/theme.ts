@@ -16,4 +16,6 @@ export const theme = createTheme({
     },
 })
 
+export const spacing = parseFloat(theme.spacing(1))
+
 export const palette = theme.palette

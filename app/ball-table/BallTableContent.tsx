@@ -9,7 +9,7 @@ import TableRow from "@mui/material/TableRow"
 import Paper from "@mui/material/Paper"
 import { SmallTextField } from "@/app/arena/components/TextFieldSpecial"
 import { Updater } from "use-immer"
-import { Box, IconButton, Stack, TextField } from "@mui/material"
+import { Box, IconButton, Stack, TextField, Tooltip } from "@mui/material"
 import { Brush, DeleteOutlined } from "@mui/icons-material"
 import { BallSize, WallBounce, Weight } from "@/app/assets/Icons"
 
@@ -45,6 +45,108 @@ function findById<T extends { id: string }>(
     id: string,
 ): T | undefined {
     return objects.find((v) => v.id === id)
+}
+
+function CompleteTableRow(props: {
+    ball: Ball
+    onColorChange: (e: React.ChangeEvent<HTMLInputElement>) => string
+    onFocus: () => void
+    onBlur: () => void
+    onMassChange: (v: number) => void
+    onRadiusChange: (v: number) => void
+    onElasticityChange: (v: number) => void
+    onDelete: () => void
+}) {
+    return (
+        <TableRow
+            sx={{
+                "&:last-child td, &:last-child th": {
+                    border: 0,
+                },
+            }}
+        >
+            <TableCell
+                component="th"
+                scope="row"
+                sx={{
+                    position: "sticky",
+                    left: 0,
+                    zIndex: 1,
+                    background: "#121212",
+                }}
+            >
+                <Box
+                    alignItems={"center"}
+                    display={"flex"}
+                    justifyContent={"center"}
+                    height={40}
+                    width={40}
+                >
+                    <BallThumbnail ball={props.ball} />
+                </Box>
+            </TableCell>
+            <TableCell align="center">
+                <TextField
+                    value={props.ball.color}
+                    type={"color"}
+                    onChange={props.onColorChange}
+                    onFocus={props.onFocus}
+                    onBlur={props.onBlur}
+                    sx={{
+                        width: 30,
+                        height: 30,
+                        "& .MuiOutlinedInput-root": {
+                            width: "100%",
+                            height: "100%",
+                            "& .MuiOutlinedInput-notchedOutline": {
+                                background: props.ball.color,
+                                // borderColor: palette.secondary.main
+                            },
+                        },
+                        "& .MuiInputBase-input": {
+                            padding: 0,
+                            value: "red",
+                            width: "100%",
+                            height: "100%",
+                            cursor: "pointer",
+                            boxSizing: "border-box",
+                        },
+                    }}
+                />
+            </TableCell>
+            <TableCell align="center">
+                <SmallTextField
+                    value={props.ball.mass}
+                    onChange={props.onMassChange}
+                    inputWidth={"40px"}
+                />
+            </TableCell>
+            <TableCell align="center">
+                <SmallTextField
+                    value={props.ball.radius}
+                    onChange={props.onRadiusChange}
+                    inputWidth={"40px"}
+                />
+            </TableCell>
+            <TableCell align="center">
+                <SmallTextField
+                    value={props.ball.elasticity}
+                    onChange={props.onElasticityChange}
+                    inputWidth={"40px"}
+                />
+            </TableCell>
+            <TableCell
+                align="center"
+                sx={{ paddingX: 1 }}
+            >
+                <Tooltip title={"Delete Ball"}>
+                    <IconButton onClick={props.onDelete}>
+                        <DeleteOutlined />
+                    </IconButton>
+                </Tooltip>
+            </TableCell>
+        </TableRow>
+    )
 }
 
 export default function BallTableContent({
@@ -94,8 +196,11 @@ export default function BallTableContent({
             sx={{
                 borderBottomRightRadius: 0,
                 borderBottomLeftRadius: 0,
-                overflowY: "auto",
+                borderTopLeftRadius: 24,
+                borderTopRightRadius: 24,
                 overflowX: "auto",
+                overflowY: "scroll",
+                height: "100%",
             }}
         >
             <Table
@@ -130,105 +235,28 @@ export default function BallTableContent({
                 </TableHead>
                 <TableBody>
                     {balls.map((ball) => (
-                        <TableRow
+                        <CompleteTableRow
                             key={ball.id}
-                            sx={{
-                                "&:last-child td, &:last-child th": {
-                                    border: 0,
-                                },
+                            ball={ball}
+                            onColorChange={(e) =>
+                                (activeColorChange.current = e.target.value)
+                            }
+                            onFocus={() => {
+                                activeColorChange.current = ball.color
                             }}
-                        >
-                            <TableCell
-                                component="th"
-                                scope="row"
-                                sx={{
-                                    position: "sticky",
-                                    left: 0,
-                                    zIndex: 1,
-                                    background: "#121212",
-                                }}
-                            >
-                                <Box
-                                    alignItems={"center"}
-                                    display={"flex"}
-                                    justifyContent={"center"}
-                                    height={40}
-                                    width={40}
-                                >
-                                    <BallThumbnail ball={ball} />
-                                </Box>
-                            </TableCell>
-                            <TableCell align="center">
-                                <TextField
-                                    value={ball.color}
-                                    type={"color"}
-                                    onChange={(e) =>
-                                        (activeColorChange.current =
-                                            e.target.value)
-                                    }
-                                    onFocus={() => {
-                                        activeColorChange.current = ball.color
-                                    }}
-                                    onBlur={() =>
-                                        updateBallColor(
-                                            ball.id,
-                                            activeColorChange.current,
-                                        )
-                                    }
-                                    sx={{
-                                        width: 30,
-                                        height: 30,
-                                        "& .MuiOutlinedInput-root": {
-                                            width: "100%",
-                                            height: "100%",
-                                            "& .MuiOutlinedInput-notchedOutline":
-                                                {
-                                                    background: ball.color,
-                                                    // borderColor: palette.secondary.main
-                                                },
-                                        },
-                                        "& .MuiInputBase-input": {
-                                            padding: 0,
-                                            value: "red",
-                                            width: "100%",
-                                            height: "100%",
-                                            cursor: "pointer",
-                                            boxSizing: "border-box",
-                                        },
-                                    }}
-                                />
-                            </TableCell>
-                            <TableCell align="center">
-                                <SmallTextField
-                                    value={ball.mass}
-                                    onChange={(v) => updateBallMass(ball.id, v)}
-                                    inputWidth={"40px"}
-                                />
-                            </TableCell>
-                            <TableCell align="center">
-                                <SmallTextField
-                                    value={ball.radius}
-                                    onChange={(v) =>
-                                        updateBallRadius(ball.id, v)
-                                    }
-                                    inputWidth={"40px"}
-                                />
-                            </TableCell>
-                            <TableCell align="center">
-                                <SmallTextField
-                                    value={ball.elasticity}
-                                    onChange={(v) =>
-                                        updateBallElasticity(ball.id, v)
-                                    }
-                                    inputWidth={"40px"}
-                                />
-                            </TableCell>
-                            <TableCell align="center">
-                                <IconButton onClick={() => deleteBall(ball.id)}>
-                                    <DeleteOutlined />
-                                </IconButton>
-                            </TableCell>
-                        </TableRow>
+                            onBlur={() =>
+                                updateBallColor(
+                                    ball.id,
+                                    activeColorChange.current,
+                                )
+                            }
+                            onMassChange={(v) => updateBallMass(ball.id, v)}
+                            onRadiusChange={(v) => updateBallRadius(ball.id, v)}
+                            onElasticityChange={(v) =>
+                                updateBallElasticity(ball.id, v)
+                            }
+                            onDelete={() => deleteBall(ball.id)}
+                        />
                     ))}
                 </TableBody>
             </Table>
@@ -244,7 +272,10 @@ function TableHeaderCell({
     icon: React.ReactNode
 }) {
     return (
-        <TableCell align="center">
+        <TableCell
+            align="center"
+            sx={{ paddingX: 1 }}
+        >
             <Stack
                 direction={"row"}
                 alignItems={"center"}
