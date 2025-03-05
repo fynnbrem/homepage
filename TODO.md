@@ -29,17 +29,17 @@
     - This prevents rendering of positions that only exist within a tick, due to an in-tick rerender.
     - Evaluate performance cost.
 - Refactor: Split up `Arena.tsx`
+- Settings 2: Balls
+  - Add/Remove Balls
+  - Configure Balls
+    - Mass
+    - Radius
+    - Elasticity
+    - Color
+  - Tooltip
 
 # 🟡 Planned
 
-- Settings 2: Balls
-    - Add/Remove Balls
-    - Configure Balls
-        - Mass
-        - Radius
-        - Elasticity
-        - Color
-    - Tooltip
 - Visuals 2: Balls
     - Make the ball trail fade out with distance to it.
     - This requires an approach using segmented trails, and canvas for proper opacity mixing.
