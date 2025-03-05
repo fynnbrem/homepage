@@ -3,9 +3,7 @@ import { WorldConfigure } from "@/app/arena/components/WorldConfigure"
 import React from "react"
 import { spacing, theme } from "@/app/lib/theme"
 import BallTable from "@/app/ball-table/BallTable"
-import { Updater, useImmer } from "use-immer";
-import { BallConfig, configFromBall } from "@/app/ball-table/model";
-import Arena, { globalBalls } from "@/app/arena/Arena";
+import Arena from "@/app/arena/Arena"
 
 const elevation = 4
 
@@ -53,7 +51,6 @@ const padding = 2
 /**The frame for the arena.
  * Contains visual elements, the arena and its configuration components.*/
 export default function ArenaFrame() {
-
     return (
         <Stack alignItems={"center"}>
             <Paper
@@ -73,7 +70,7 @@ export default function ArenaFrame() {
                 >
                     <WorldConfigurePaper />
                     <Arena />
-                    <BallTablePaper/>
+                    <BallTablePaper />
                 </Stack>
             </Paper>
         </Stack>

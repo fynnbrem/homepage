@@ -13,7 +13,7 @@ import { Box, IconButton, Stack, TextField, Tooltip } from "@mui/material"
 import { Brush, DeleteOutlined } from "@mui/icons-material"
 import { BallSize, WallBounce, Weight } from "@/app/assets/Icons"
 import { BallConfig } from "@/app/ball-table/model"
-import { globalBalls } from "@/app/arena/Arena";
+import { globalBalls } from "@/app/arena/Arena"
 
 const iconSize = 32
 

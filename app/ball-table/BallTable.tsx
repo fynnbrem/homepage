@@ -3,27 +3,10 @@ import { Add } from "@mui/icons-material"
 import React from "react"
 import { v4 } from "uuid"
 import BallTableContent from "@/app/ball-table/BallTableContent"
-import { Updater, useImmer } from "use-immer"
+import { useImmer } from "use-immer"
 import { getRandomItem } from "@/app/lib/math"
-import { BallConfig, configFromBall, getNewBall } from "@/app/ball-table/model";
-import { globalBalls } from "@/app/arena/Arena";
-
-function createData(
-    color: string,
-    mass: number,
-    radius: number,
-    elasticity: number,
-): BallConfig {
-    return { id: v4(), color, mass, radius, elasticity }
-}
-
-const baseRows = [
-    createData("#b52b2b", 250, 5, 0.9),
-    createData("#149327", 50, 15, 0.8),
-    createData("#8c1878", 150, 25, 0.1),
-    createData("#2340bf", 500, 30, 0.7),
-    createData("#73ecdc", 100, 10, 0),
-]
+import { BallConfig, configFromBall, getNewBall } from "@/app/ball-table/model"
+import { globalBalls } from "@/app/arena/Arena"
 
 const randomParams = {
     radius: [5, 10, 15, 20, 25, 35, 45],

@@ -34,16 +34,19 @@ export function WorldConfigure() {
                 precision={0}
             />
             <NumberConfigure
-                title="Trail Length"
-                variant={"slider"}
+                title="World Gravity"
+                variant={"slider-dial"}
                 min={0}
-                max={200}
-                icon={<Route sx={{ fontSize: iconSize }} />}
+                max={100}
+                icon={<GetApp sx={{ fontSize: iconSize }} />}
                 tooltip={
-                    "The length of the ball trail. Each unit allows the trail to persist 1 tick longer."
+                    "The uniform force applied to all balls into a certain direction."
                 }
-                sliderValue={config.trailLength[0]}
-                onSliderChange={config.trailLength[1]}
+                sliderValue={config.worldGravity[0].magnitude}
+                onSliderChange={handleWorldGravityMagnitudeChange}
+                dialValue={config.worldGravity[0].angle}
+                onDialChange={handleWorldGravityAngleChange}
+                squared={true}
                 precision={0}
             />
             <NumberConfigure
@@ -69,6 +72,14 @@ export function WorldConfigure() {
                 precision={2}
             />
             <NumberConfigure
+                title="Collision"
+                variant={"switch"}
+                icon={<BallCollision size={iconSize} />}
+                tooltip={"Whether balls collide with each other or not."}
+                switchValue={config.collision[0]}
+                onSwitchChange={config.collision[1]}
+            />
+            <NumberConfigure
                 title="Wall Elasticity"
                 variant={"slider"}
                 min={0}
@@ -82,28 +93,17 @@ export function WorldConfigure() {
                 precision={2}
             />
             <NumberConfigure
-                title="World Gravity"
-                variant={"slider-dial"}
+                title="Trail Length"
+                variant={"slider"}
                 min={0}
-                max={100}
-                icon={<GetApp sx={{ fontSize: iconSize }} />}
+                max={200}
+                icon={<Route sx={{ fontSize: iconSize }} />}
                 tooltip={
-                    "The uniform force applied to all balls into a certain direction."
+                    "The length of the ball trail. Each unit allows the trail to persist 1 tick longer."
                 }
-                sliderValue={config.worldGravity[0].magnitude}
-                onSliderChange={handleWorldGravityMagnitudeChange}
-                dialValue={config.worldGravity[0].angle}
-                onDialChange={handleWorldGravityAngleChange}
-                squared={true}
+                sliderValue={config.trailLength[0]}
+                onSliderChange={config.trailLength[1]}
                 precision={0}
-            />
-            <NumberConfigure
-                title="Collision"
-                variant={"switch"}
-                icon={<BallCollision size={iconSize} />}
-                tooltip={"Whether balls collide with each other or not."}
-                switchValue={config.collision[0]}
-                onSwitchChange={config.collision[1]}
             />
         </>
     )

@@ -44,7 +44,7 @@
     - Make the ball trail fade out with distance to it.
     - This requires an approach using segmented trails, and canvas for proper opacity mixing.
     - Add an extra visual effect wherever two balls collide.
-    - Add a inset lightning effect so the balls look less flat.
+    - Add an inset lightning effect so the balls look less flat.
 - Interaction: Dynamic Arena Size
     - Collide balls into the borders of the arena when shrinking.
 - Visuals: Adaptive Layout

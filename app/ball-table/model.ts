@@ -1,5 +1,5 @@
 import { Ball } from "@/app/lib/ball-movement/model"
-import { Vector2 } from "math.gl";
+import { Vector2 } from "math.gl"
 
 export type BallConfig = {
     id: string
@@ -19,13 +19,6 @@ export function configFromBall(ball: Ball): BallConfig {
     }
 }
 
-function applyConfig(config: BallConfig, ball: Ball): void {
-    ball.color = config.color
-    ball.mass = config.mass
-    ball.radius = config.radius
-    ball.elasticity = config.elasticity
-}
-
 export function getNewBall(config: BallConfig): Ball {
     return {
         pos: new Vector2(200, 200),
@@ -34,4 +27,3 @@ export function getNewBall(config: BallConfig): Ball {
         ...config,
     }
 }
-
