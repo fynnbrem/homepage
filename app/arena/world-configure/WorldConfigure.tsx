@@ -1,5 +1,5 @@
 import React from "react"
-import NumberConfigure from "@/app/arena/components/NumberConfigure"
+import NumberConfigure from "@/app/arena/world-configure/components/NumberConfigure"
 import { AdsClick, GetApp, Route } from "@mui/icons-material"
 import { BallCollision, BallGravity, WallBounce } from "@/app/assets/Icons"
 import { useConfiguration } from "@/app/providers/ConfigurationProvider"

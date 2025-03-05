@@ -1,13 +1,13 @@
 import { Button, Stack, Tooltip } from "@mui/material"
 import { Add } from "@mui/icons-material"
 import React from "react"
-import BallTable from "@/app/ball-table/BallTable"
+import BallTable from "@/app/arena/ball-table/BallTable"
 import { useImmer } from "use-immer"
 import {
     configFromBall,
     getNewBall,
     getRandomBall,
-} from "@/app/ball-table/model"
+} from "@/app/arena/ball-table/model"
 import { globalBalls } from "@/app/arena/Arena"
 
 
