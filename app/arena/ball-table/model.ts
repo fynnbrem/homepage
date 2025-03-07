@@ -1,7 +1,7 @@
-import { Ball } from "@/app/lib/ball-movement/model"
-import { Vector2 } from "math.gl"
-import { v4 } from "uuid"
-import { getRandomItem } from "@/app/lib/math"
+import { Ball } from "@/app/lib/ball-movement/model";
+import { Vector2 } from "math.gl";
+import { v4 } from "uuid";
+import { getRandomItem } from "@/app/lib/math";
 
 /**A reduced representation of a `Ball`.
  * This only contains the values that can be configured,
@@ -57,9 +57,9 @@ const randomParams = {
         "#e37e21",
         "#faa300",
         "#eda503",
-        "#ffc341"
-    ]
-};
+        "#ffc341",
+    ],
+}
 
 /**Generates a randomized `BallConfig`.
  * Possible values are listed in `randomParams`.*/
@@ -69,6 +69,6 @@ export function getRandomBall(): BallConfig {
         color: getRandomItem(randomParams.color),
         mass: getRandomItem(randomParams.mass),
         radius: getRandomItem(randomParams.radius),
-        elasticity: getRandomItem(randomParams.elasticity)
-    };
+        elasticity: getRandomItem(randomParams.elasticity),
+    }
 }

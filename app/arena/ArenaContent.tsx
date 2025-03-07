@@ -99,25 +99,54 @@ function BallTrails({ balls }: { balls: Ball[] }) {
             height={"100%"}
         >
             {balls.map((b, i) => {
-                const path = b.path.map((pos) => `${pos.x},${pos.y}`).join(" ")
                 return (
-                    <polyline
+                    <BallDotTrail
+                        ball={b}
                         key={i}
-                        points={path}
-                        fill={"none"}
-                        stroke={b.color}
-                        // Define the stroke width.
-                        // We want one that scales sub-linearly with size,
-                        // so big balls don't have a too large trail or small balls have a too small trail.
-                        // The rounding is not strictly necessary but prevents hydration errors due to imprecision.
-                        strokeWidth={Math.round(b.radius ** 0.7 * 1.2)}
-                        strokeOpacity={0.3}
-                        strokeLinecap={"round"}
-                        strokeLinejoin={"round"}
                     />
                 )
             })}
         </svg>
+    )
+}
+
+const maxOpacity = 0.3
+const shrinkRange = 0.2
+
+function BallDotTrail({ ball }: { ball: Ball }) {
+    return ball.path.map((p, j) => {
+        const fadePerStep = maxOpacity / ball.path.length
+        const shrinkPerStep = shrinkRange / ball.path.length
+        const k = ball.path.length - j
+        return (
+            <circle
+                key={j}
+                cx={p.x}
+                cy={p.y}
+                r={Math.round(ball.radius ** (0.5 + k * shrinkPerStep) * 1.2)}
+                opacity={k * fadePerStep}
+                fill={ball.color}
+            />
+        )
+    })
+}
+
+function BallLineTrail({ ball }: { ball: Ball }) {
+    const path = ball.path.map((p) => `${p.x},${p.y}`).join(" ")
+    return (
+        <polyline
+            points={path}
+            fill={"none"}
+            stroke={ball.color}
+            // Define the stroke width.
+            // We want one that scales sub-linearly with size,
+            // so big balls don't have a too large trail or small balls have a too small trail.
+            // The rounding is not strictly necessary but prevents hydration errors due to imprecision.
+            strokeWidth={Math.round(ball.radius ** 0.7 * 1.2)}
+            strokeOpacity={0.3}
+            strokeLinecap={"round"}
+            strokeLinejoin={"round"}
+        />
     )
 }
 

@@ -42,7 +42,6 @@
 
 - Visuals 2: Balls
     - Make the ball trail fade out with distance to it.
-    - This requires an approach using segmented trails, and canvas for proper opacity mixing.
     - Add an extra visual effect wherever two balls collide.
     - Add an inset lightning effect so the balls look less flat.
 - Interaction: Dynamic Arena Size
