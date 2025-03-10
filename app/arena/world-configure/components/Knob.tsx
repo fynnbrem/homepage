@@ -43,7 +43,7 @@ export default function Knob({
         onChange(getClockWiseAngle(pos))
     }
 
-    // Once tracking starts, it should keep tracking even if the pointer leaves the boundaries of the kob,
+    // Once tracking starts, it should keep tracking even if the pointer leaves the boundaries of the knob,
     // So we use the global event listeners.
     useEventListener("pointerup", () => {
         isTracking.current = false

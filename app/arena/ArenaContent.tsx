@@ -26,19 +26,25 @@ export default function ArenaContent({
                 lightPos={mousePos}
             />
             {/*Render the pointer light above the shadows.*/}
-            {isMouseActive && <MouseLight mousePos={mousePos} />}
 
             {/*Render the paths right below the balls.*/}
             <BallTrails balls={balls} />
 
             {/*Render the balls above the light.*/}
-            <Balls balls={balls} />
+            <Balls
+                balls={balls}
+                lightPos={mousePos}
+            />
+            {isMouseActive && <MouseLight mousePos={mousePos} />}
         </>
     )
 }
 
 /**The ball shadows. These mimic the ball shape and have an offset
- * that increases with the distance between the respective ball and the `lightPos`.*/
+ * that increases with the distance between the respective ball and the `lightPos`.
+ *
+ * The shadow does not imitate an actual light source and instead moves
+ * linearly with the planar distance, giving a subtle shadow effect.*/
 function BallShadows({
     balls,
     lightPos,
@@ -49,7 +55,8 @@ function BallShadows({
     return (
         <>
             {balls.map((b, i) => {
-                const shadowOffset = getShadowOffset(b.pos, lightPos, 25)
+                const shadowOffset = getShadowOffset(b.pos, lightPos, 50)
+                // const shadowOffset = new Vector2(0, 0)
                 return (
                     <div
                         key={i}
@@ -59,10 +66,10 @@ function BallShadows({
                             top: b.pos.y - b.radius + shadowOffset.y,
                             width: b.radius * 2,
                             height: b.radius * 2,
-                            background: "rgba(0, 0, 0, 0.7)",
+                            background: "rgba(0, 0, 0, 0.4)",
                             border: "none",
                             borderRadius: "50%",
-                            filter: "blur(10px)",
+                            filter: "blur(5px)",
                         }}
                     />
                 )
@@ -113,6 +120,8 @@ function BallTrails({ balls }: { balls: Ball[] }) {
 const maxOpacity = 0.3
 const shrinkRange = 0.2
 
+/**The trail for a ball.
+ * The trail is a line of dots that gradually shrinks and fades out the further out the dot is.*/
 function BallDotTrail({ ball }: { ball: Ball }) {
     return ball.path.map((p, j) => {
         const fadePerStep = maxOpacity / ball.path.length
@@ -131,45 +140,59 @@ function BallDotTrail({ ball }: { ball: Ball }) {
     })
 }
 
-function BallLineTrail({ ball }: { ball: Ball }) {
-    const path = ball.path.map((p) => `${p.x},${p.y}`).join(" ")
-    return (
-        <polyline
-            points={path}
-            fill={"none"}
-            stroke={ball.color}
-            // Define the stroke width.
-            // We want one that scales sub-linearly with size,
-            // so big balls don't have a too large trail or small balls have a too small trail.
-            // The rounding is not strictly necessary but prevents hydration errors due to imprecision.
-            strokeWidth={Math.round(ball.radius ** 0.7 * 1.2)}
-            strokeOpacity={0.3}
-            strokeLinecap={"round"}
-            strokeLinejoin={"round"}
-        />
-    )
-}
-
-/**The balls. These are just plain circles, with appearance and position by the respective balls.*/
-function Balls({ balls }: { balls: Ball[] }) {
+/**Renders the visualizations of the balls using `<BallCircle>`.*/
+function Balls({ balls, lightPos }: { balls: Ball[]; lightPos: Vector2 }) {
     return (
         <>
-            {balls.map((b, i) => {
+            {balls.map((b) => {
                 return (
-                    <div
-                        key={i}
-                        style={{
-                            position: "absolute",
-                            left: b.pos.x - b.radius,
-                            top: b.pos.y - b.radius,
-                            width: b.radius * 2,
-                            height: b.radius * 2,
-                            background: b.color,
-                            borderRadius: "50%",
-                        }}
+                    <BallCircle
+                        key={b.id}
+                        ball={b}
+                        lightPos={lightPos}
                     />
                 )
             })}
+        </>
+    )
+}
+
+/**The simulated height of the light (The z-position). This is used to create a realistic lighting effect.*/
+const lightHeight = 200
+
+/**The visualization of a `ball`.
+ * It consists of a colored circle and a light effect to make it appear 3D.*/
+function BallCircle({ ball, lightPos }: { ball: Ball; lightPos: Vector2 }) {
+    // Calculate the position of the light reflection of the ball.
+    // This imitates an actual light source shining from a constant height.
+    const lightPosRelative = lightPos.clone().subtract(ball.pos)
+    const lightDistance = Math.hypot(lightPos.x, lightPos.y, lightHeight)
+    const reflectionPos = lightPosRelative.scale(ball.radius / lightDistance)
+
+    return (
+        <>
+            <div
+                style={{
+                    position: "absolute",
+                    left: ball.pos.x - ball.radius,
+                    top: ball.pos.y - ball.radius,
+                    width: ball.radius * 2,
+                    height: ball.radius * 2,
+                    background: ball.color,
+                    borderRadius: "50%",
+                }}
+            />
+            <div
+                style={{
+                    position: "absolute",
+                    left: ball.pos.x - ball.radius,
+                    top: ball.pos.y - ball.radius,
+                    width: ball.radius * 2,
+                    height: ball.radius * 2,
+                    background: `radial-gradient(circle at ${reflectionPos.x + ball.radius}px ${reflectionPos.y + ball.radius}px, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 60%, rgba(255, 255, 255, 0))`,
+                    borderRadius: "50%",
+                }}
+            />
         </>
     )
 }

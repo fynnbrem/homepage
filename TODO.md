@@ -30,20 +30,19 @@
     - Evaluate performance cost.
 - Refactor: Split up `Arena.tsx`
 - Settings 2: Balls
-  - Add/Remove Balls
-  - Configure Balls
-    - Mass
-    - Radius
-    - Elasticity
-    - Color
-  - Tooltip
+    - Add/Remove Balls
+    - Configure Balls
+        - Mass
+        - Radius
+        - Elasticity
+        - Color
+    - Tooltip
+- Visuals 2: Balls
+    - Make the ball trail fade out with distance to it.
+    - Add an inset lightning effect so the balls look less flat.
 
 # 🟡 Planned
 
-- Visuals 2: Balls
-    - Make the ball trail fade out with distance to it.
-    - Add an extra visual effect wherever two balls collide.
-    - Add an inset lightning effect so the balls look less flat.
 - Interaction: Dynamic Arena Size
     - Collide balls into the borders of the arena when shrinking.
 - Visuals: Adaptive Layout
@@ -53,6 +52,8 @@
     - Noise Flooring
 - Visuals: Light Mode
     - Also add a switch for manual selection.
+- Visuals: Starting Parameters
+    - Find starting parameters (velocity, position) that quickly result in a nice ball constellation.
 - Settings 3
     - Pause
 - Interaction: Use LocalStorage

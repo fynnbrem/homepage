@@ -16,8 +16,12 @@ import {
 } from "@/app/lib/ball-movement/model"
 import ArenaContent from "@/app/arena/ArenaContent"
 
-const arenaDim = new Vector2(600, 700)
+/**Freezes the entire simulation.*/
+const freeze = false
+/**Logs the measured tick interval to the console.*/
+const logTickInterval = false
 
+const arenaDim = new Vector2(600, 700)
 const tps = 60
 const interval = Math.round(1000 / tps)
 
@@ -100,14 +104,16 @@ export default function Arena() {
 
         function doTick(): void {
             const config = getConfig()
-            updateBallPath(globalBalls, config.trailLength)
-            updateMouseBall(config)
-            moveBalls(
-                globalBalls,
-                config,
-                arenaDim,
-                mouseBallActive.current ? mouseBall : undefined,
-            )
+            if (!freeze) {
+                updateBallPath(globalBalls, config.trailLength)
+                updateMouseBall(config)
+                moveBalls(
+                    globalBalls,
+                    config,
+                    arenaDim,
+                    mouseBallActive.current ? mouseBall : undefined,
+                )
+            }
             setBalls(cloneBalls(globalBalls))
 
             tickCount.current += 1
@@ -116,7 +122,8 @@ export default function Arena() {
                 const currentTime = Date.now()
                 const tickInterval = currentTime - lastTickTime.current
                 lastTickTime.current = currentTime
-                // console.log(Math.round(32000 / tickInterval))
+                if (logTickInterval)
+                    console.log(Math.round(32000 / tickInterval))
             }
         }
 

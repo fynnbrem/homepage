@@ -5,6 +5,7 @@ import Head from "next/head"
 import Providers from "@/app/providers/Providers"
 import { grey } from "@mui/material/colors"
 import DynamicBackground from "@/app/assets/DynamicBackground"
+import React from "react";
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
