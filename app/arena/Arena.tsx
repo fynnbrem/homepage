@@ -1,29 +1,25 @@
-"use client"
-import React, { RefObject, useEffect, useRef, useState } from "react"
-import { Vector2 } from "math.gl"
+"use client";
+import React, { RefObject, useEffect, useRef, useState } from "react";
+import { Vector2 } from "math.gl";
 import {
     getStaticConfiguration,
     useConfiguration,
-    WorldConfigurationStatic,
-} from "@/app/providers/ConfigurationProvider"
-import { Box } from "@mui/material"
-import { moveBalls } from "@/app/lib/ball-movement/movement"
-import {
-    Ball,
-    cloneBalls,
-    updateBallPath,
-    VoidBall,
-} from "@/app/lib/ball-movement/model"
-import ArenaContent from "@/app/arena/ArenaContent"
+    WorldConfigurationStatic
+} from "@/app/providers/ConfigurationProvider";
+import { Box } from "@mui/material";
+import { moveBalls } from "@/app/lib/ball-movement/movement";
+import { Ball, cloneBalls, updateBallPath, VoidBall } from "@/app/lib/ball-movement/model";
+import ArenaContent from "@/app/arena/ArenaContent";
 
 /**Freezes the entire simulation.*/
 const freeze = false
 /**Logs the measured tick interval to the console.*/
 const logTickInterval = false
 
-const arenaDim = new Vector2(600, 700)
 const tps = 60
 const interval = Math.round(1000 / tps)
+
+const baseDim = new Vector2(600, 700)
 
 const mouseBall: VoidBall = {
     pos: new Vector2(0, 0),
@@ -66,6 +62,8 @@ export default function Arena() {
     const mousePosRef = useRef(new Vector2(0, 0))
     const mouseBallActive = useRef(false)
     const [mousePos, setMousePos] = useState(new Vector2(0, 0))
+
+    const arenaDimRef = useRef(baseDim)
 
     const lastTickTime = useRef(0)
 
@@ -110,7 +108,7 @@ export default function Arena() {
                 moveBalls(
                     globalBalls,
                     config,
-                    arenaDim,
+                    arenaDimRef.current,
                     mouseBallActive.current ? mouseBall : undefined,
                 )
             }
@@ -135,8 +133,8 @@ export default function Arena() {
     return (
         <Box
             sx={{
-                width: arenaDim.x,
-                height: arenaDim.y,
+                width: arenaDimRef.current.x,
+                height: arenaDimRef.current.y,
                 background: "#2A2A2A",
                 touchAction: "none",
                 overflow: "hidden",
