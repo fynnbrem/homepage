@@ -42,11 +42,12 @@
     - Add an inset lightning effect so the balls look less flat.
 - Interaction: Dynamic Arena Size
     - Collide balls into the borders of the arena when shrinking.
-
+- Content: About Me
+  - Also add into URL
+  
 # 🟡 Planned
 
-- Content: About Me
-    - Also add into URL
+
 - Visuals: Adaptive Layout
 - Interaction: Better Collision
     - Collision Interpolation (For high speed collisions)

@@ -53,7 +53,7 @@ function Text() {
                 <ExternalLink href={"https://www.dspace.com/"}>
                     dSPACE
                 </ExternalLink>{" "}
-                where I utilized computer linguistics to improve the quality of
+                where I applied computer linguistics to improve the quality of
                 user documentation, helped in developing an OpenAI-based chatbot
                 to make the documentation more accessible and had my first
                 contact with proper user design.

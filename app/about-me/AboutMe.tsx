@@ -1,28 +1,61 @@
 import { Backdrop, Box, Button, Paper, Stack } from "@mui/material"
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useMemo, useState } from "react"
 import { zIndex } from "@/app/lib/theme"
 import AboutMeContent from "@/app/about-me/AboutMeContent"
 import { BananaFace } from "@/app/assets/Icons"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
 
 const animationDuration = 0.5
 
 export default function AboutMe() {
+    const router = useRouter()
+    const stringParams = useSearchParams().toString()
+    const searchParams = useMemo(
+        () => new URLSearchParams(stringParams),
+        [stringParams],
+    )
+
+    const pathName = usePathname()
+
+    // Define the open state.
+    // We do not directly infer the open state as this will get
+    // messy in combination with pre-rendering, instead we `useEffect` below.
     const [open, setOpen] = useState(false)
     const [contentVisible, setContentVisible] = useState(open)
+    useEffect(() => {
+        setOpen(!!searchParams.get("aboutMe"))
+    }, [searchParams])
+
+    function handleOpenChange(value: boolean) {
+        if (value) {
+            searchParams.set("aboutMe", "1")
+        } else {
+            searchParams.delete("aboutMe")
+        }
+        setOpen(value)
+        router.replace(`${pathName}?${searchParams.toString()}`)
+    }
+
     useEffect(() => {
         if (open) {
             setContentVisible(true)
         } else {
-            setTimeout(() => setContentVisible(false), animationDuration * 1000)
+            const timeout = setTimeout(
+                () => setContentVisible(false),
+                animationDuration * 1000,
+            )
+            return clearTimeout(timeout)
         }
     }, [open])
+
+
 
     return (
         <>
             <Backdrop
                 open={open}
                 sx={{ zIndex: zIndex.aboutMe - 1 }}
-                onClick={() => setOpen(false)}
+                onClick={() => handleOpenChange(false)}
             />
             <Stack
                 width={"100%"}
@@ -51,7 +84,7 @@ export default function AboutMe() {
                             alignItems: "start",
                             paddingTop: 1,
                         }}
-                        onClick={() => setOpen(!open)}
+                        onClick={() => handleOpenChange(!open)}
                     >
                         <Stack
                             direction={"row"}
