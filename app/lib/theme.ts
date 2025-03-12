@@ -16,6 +16,11 @@ export const theme = createTheme({
     },
 })
 
+export const zIndex = {
+    badge: 5,
+    aboutMe: 10,
+}
+
 export const spacing = parseFloat(theme.spacing(1))
 
 export const palette = theme.palette
