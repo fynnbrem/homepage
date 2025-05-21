@@ -1,4 +1,4 @@
-import { Ball } from "@/app/lib/ball-movement/model";
+import { Ball } from "@/app/lib/physics/ball-movement/model";
 import { Vector2 } from "math.gl";
 import { v4 } from "uuid";
 import { getRandomItem } from "@/app/lib/math";

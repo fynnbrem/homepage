@@ -7,8 +7,8 @@ import {
     WorldConfigurationStatic
 } from "@/app/providers/ConfigurationProvider";
 import { Box } from "@mui/material";
-import { moveBalls } from "@/app/lib/ball-movement/movement";
-import { Ball, cloneBalls, updateBallPath, VoidBall } from "@/app/lib/ball-movement/model";
+import { moveBalls } from "@/app/lib/physics/ball-movement/movement";
+import { Ball, cloneBalls, updateBallPath, VoidBall } from "@/app/lib/physics/ball-movement/model";
 import ArenaContent from "@/app/arena/ArenaContent";
 
 /**Freezes the entire simulation.*/
@@ -53,7 +53,7 @@ export const globalBalls: Ball[] = [
         vel: new Vector2(0, -2),
         mass: 50,
         radius: 10,
-        elasticity: 0,
+        elasticity: 0.2,
         color: "#b34500",
         path: [],
     },

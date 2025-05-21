@@ -1,7 +1,8 @@
 import { Directional, WorldConfigurationStatic } from "@/app/providers/ConfigurationProvider";
 import { getRotatedVector } from "@/app/lib/math";
 import { Vector2 } from "math.gl";
-import { Ball, VoidBall } from "@/app/lib/ball-movement/model";
+import { Ball, VoidBall } from "@/app/lib/physics/ball-movement/model";
+import { getCollisionVelocityDelta } from "@/app/lib/physics/collision"
 
 /**Moves the balls by applying all active forces to it (global gravity, inter-ball gravity, collision)
  * and moving them by their resulting velocity.
@@ -171,20 +172,14 @@ function collideBalls(ball1: Ball, ball2: Ball, overlap: number) {
     // the balls are moving away from one another so we can skip the collision.
     if (collisionVel > 0) return
 
-    // Calculate the total collision impulse.
-    // Note that this is not strictly the physical impulse as we do not scale it with the mass-product of both balls.
-    // This is so we don't have to divide them out again later down the line.
     const restitution = combineRestitutionCoefficients(
         ball1.elasticity,
         ball2.elasticity,
     )
-    const impulse =
-        ((1 + restitution) * collisionVel) / (ball1.mass + ball2.mass)
-    // Apply the impulse.
-    // Note that due to the special definition of the impulse,
-    // we do not divide-out the balls mass but rather multiply-in the other balls mass.
-    ball1.vel.add(collisionNorm.clone().scale(impulse * ball2.mass))
-    ball2.vel.subtract(collisionNorm.clone().scale(impulse * ball1.mass))
+    // Apply the impulse
+    const [dVel1, dVel2] = getCollisionVelocityDelta(collisionVel, ball1.mass, ball2.mass, restitution)
+    ball1.vel.add(collisionNorm.clone().scale(dVel1))
+    ball2.vel.add(collisionNorm.clone().scale(dVel2))
     // Move the balls out of the overlap.
     // The balls will be moved anti-proportionally to their mass.
     const separation = overlap / (ball1.mass + ball2.mass)
