@@ -48,8 +48,6 @@ export default function AboutMe() {
         }
     }, [open])
 
-
-
     return (
         <>
             <Backdrop

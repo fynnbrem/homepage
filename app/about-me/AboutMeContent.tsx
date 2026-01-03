@@ -2,6 +2,8 @@ import Image from "next/image"
 import { Box, Link, Typography } from "@mui/material"
 import { theme } from "@/app/lib/theme"
 import ExternalLink from "@/app/components/ExternalLink"
+import { useEffect } from "react"
+
 
 export default function AboutMeContent() {
     return (
@@ -25,7 +27,6 @@ export default function AboutMeContent() {
                     margin: theme.spacing(2),
                     display: "inline-block",
                     float: "left",
-                    animation: "rotate 600s linear infinite",
                 }}
             />
             <Text />
@@ -41,7 +42,7 @@ function Text() {
                 variant={"h4"}
                 sx={{ mb: 1 }}
             >
-                Welcome to my website!
+                Say hello to my website!
             </Typography>
             <Typography variant={"h5"}>
                 I am a computer science student enrolled at{" "}
@@ -54,9 +55,9 @@ function Text() {
                     dSPACE
                 </ExternalLink>{" "}
                 where I applied computer linguistics to improve the quality of
-                user documentation, helped in developing an OpenAI-based chatbot
-                to make the documentation more accessible and had my first
-                contact with proper user design.
+                user documentation, helped in developing an LLM-based chatbot to
+                make the documentation more accessible and had my first contact
+                with proper user design.
                 <br />
                 <br />
                 Besides computer science I also practice some applied physics
