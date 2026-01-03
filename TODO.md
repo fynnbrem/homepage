@@ -49,6 +49,10 @@
 
 
 - Visuals: Adaptive Layout
+  - We need an entirely new layout for mobile devices.
+- Visuals: Layout scaling.
+  - Currently, the components do not scale, 
+    resulting a notably small view on 4k monitors and an overflow on 720p monitors.
 - Interaction: Better Collision
     - Collision Interpolation (For high speed collisions)
     - Multi Collision (Wall + Ball Collision)
