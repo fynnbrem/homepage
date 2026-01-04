@@ -1,12 +1,5 @@
 "use client"
-import {
-    forwardRef,
-    Ref,
-    useEffect,
-    useImperativeHandle,
-    useRef,
-    useState,
-} from "react"
+import { Ref, useEffect, useImperativeHandle, useRef, useState } from "react"
 import { getCollisionVelocityDelta } from "@/app/lib/physics/collision"
 import { Box, Typography } from "@mui/material"
 import { blue, orange, red } from "@mui/material/colors"
@@ -20,32 +13,75 @@ import {
     ResponsiveContainer,
 } from "recharts"
 
-const timeScale = 10
+const timeScale = 1
 const distanceScale = 10
+
+function getPosition(
+    startPos: number,
+    endPos: number,
+    startTime: number,
+    endTime: number,
+    currentTime: number,
+): number {
+    const relTime = (currentTime - startTime) / (endTime - startTime)
+    return startPos + (endPos - startPos) * relTime
+}
 
 export default function PiCollider() {
     const blockMover = useRef<BlockMover>(null!)
     const [collisions, setCollisions] = useState<CollisionRecord[]>([])
 
+    const collAnimationIndex = useRef(0)
+
     useEffect(() => {
         const colls = simulateCollisions()
         setCollisions(colls)
-        console.log(colls.slice(0, 20))
 
-        function increment(index: number) {
-            blockMover.current(colls[index].minorPos, colls[index].majorPos)
+        const startTime = performance.now()
 
-            if (index + 1 < colls.length) {
-                setTimeout(
-                    () => {
-                        increment(index + 1)
-                    },
-                    colls[index + 1].deltaTime * timeScale,
-                )
+        function increment(timestamp: number) {
+            const elapsedTime = timestamp - startTime
+
+            // Find the index matching the current timestamp.
+            // For multiple collisions per frame, this will increment it until we reach a matching time.
+            // For multiple frames per collision, this will do nothing until the next collision.
+            while (
+                collAnimationIndex.current + 1 < colls.length &&
+                colls[collAnimationIndex.current].time * timeScale < elapsedTime
+            ) {
+                collAnimationIndex.current += 1
+            }
+
+            const index = collAnimationIndex.current
+            const lastIndex = index - 1
+
+            console.log("Index", index)
+            console.log(timestamp)
+            console.log(colls[index])
+
+            const minorPos = getPosition(
+                colls[lastIndex].minorPos,
+                colls[index].minorPos,
+                colls[lastIndex].time * timeScale,
+                colls[index].time * timeScale,
+                elapsedTime,
+            )
+            const majorPos = getPosition(
+                colls[lastIndex].majorPos,
+                colls[index].majorPos,
+                colls[lastIndex].time * timeScale,
+                colls[index].time * timeScale,
+                elapsedTime,
+            )
+
+            blockMover.current(minorPos, majorPos)
+
+            if (collAnimationIndex.current + 1 < colls.length) {
+                requestAnimationFrame(increment)
             }
         }
 
-        increment(0)
+        requestAnimationFrame(increment)
     }, [])
 
     return (
@@ -85,7 +121,7 @@ function simulateCollisions(): CollisionRecord[] {
     }
     const majorMass: Mass = {
         mass: 100,
-        vel: -1,
+        vel: -0.01,
         pos: 200,
     }
 
@@ -127,6 +163,7 @@ function simulateCollisions(): CollisionRecord[] {
         minorMass.pos = 0
         majorMass.pos = majorMass.pos + wallDt * majorMass.vel
 
+        totalTime += wallDt
         collisions.push({
             time: totalTime,
             deltaTime: wallDt,
