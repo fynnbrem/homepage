@@ -45,4 +45,4 @@ next-env.d.ts
 
 # Sandbox
 sandbox.*
-sandbox
+app/sandbox
