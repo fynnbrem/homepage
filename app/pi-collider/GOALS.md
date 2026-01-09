@@ -10,12 +10,16 @@
 - Make the weight numbers only show for 2 seconds at the very start.
   - Fade out after that.
 - Separate the code into more modules.
+- Make the timescale dynamic and configurable.
+  - It needs to be modify-able during an active simulation.
+- Animate the collision counter.
+  - It jitters and grows every according to the current collision rate.
 
 # 🟢 Done
 
 # 🐞 Bugs
 - After reloading, we sometimes get an error.
-  - Not sure under which condition it happens.
+  - Not sure under which condition it happens. Seems to be after long inactivity.
   - Likely and index error.
   - Cannot read properties of undefined (reading 'minorPos')
   - colls[lastIndex].minorPos,

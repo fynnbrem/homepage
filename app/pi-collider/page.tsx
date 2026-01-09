@@ -1,7 +1,14 @@
 "use client"
-import { Ref, useEffect, useImperativeHandle, useRef, useState } from "react"
+import {
+    Ref,
+    useCallback,
+    useEffect,
+    useImperativeHandle,
+    useRef,
+    useState,
+} from "react"
 import { getCollisionVelocityDelta } from "@/app/lib/physics/collision"
-import { Box, Typography, useTheme } from "@mui/material"
+import { Box, Typography } from "@mui/material"
 import { blue, orange, red } from "@mui/material/colors"
 import {
     LineChart,
@@ -13,25 +20,31 @@ import {
     ResponsiveContainer,
 } from "recharts"
 import BurstCanvas from "@/app/pi-collider/BurstCanvas"
-import { useInterval } from "usehooks-ts"
 import { randomInt } from "@/app/lib/math"
-import { theme } from "@/app/lib/theme"
 
-const timeScale = 50
-const distanceScale = 10
+const timeScale = 10
+const distanceScale = 8
 
-const sparkBurstLimit = 12
-// ↑ The limit of spark burst animations that can trigger in a single frame.
-// 12 seems to be a number that makes the animation not too dense while still
-// making high collision densities satisfying to watch.
-
-const massRatio = 1000000
+const massRatio = 10000
 const minorLength = 100
 const sizeRatio = (1 + Math.log(massRatio) / Math.log(100)) ** 0.8
 // ↑ The visual size ratio between the blocks.
 // We assume mass ratios growing according to `100^n` due to how it affects the generated digits.
 // So we normalize the size to this scale and add an exponent of `0.8` to smooth out extreme numbers.
 const majorLength = 100 * sizeRatio
+
+const sparkBurstLimit = 12
+// ↑ The limit of spark burst animations that can trigger in a single frame.
+// 12 seems to be a number that makes the animation not too dense while still
+// making high collision densities satisfying to watch.
+
+const sparkYRange = [
+    majorLength - minorLength * 0.9,
+    majorLength - minorLength * 0.1,
+]
+// ↑ The coordinate range that sparks can spawn on the y-axis.
+// This is the shared area between the minor and major block, minus 10% padding
+// as they look weird when spawning on the corners.
 
 function getPosition(
     startPos: number,
@@ -46,17 +59,34 @@ function getPosition(
 
 export default function PiCollider() {
     const blockMover = useRef<BlockMover>(null!)
-    const [collisions, setCollisions] = useState<CollisionRecord[]>([])
     const [collisionCounter, setCollisionCounter] = useState(0)
     const makeSparkRef = useRef<(x: number, y: number) => void>(null!)
 
     const collAnimationIndex = useRef(0)
     const padding = 80
 
+    /**Create a spark burst for the blocks.
+     * The final position is inferred entirely from the position of the minor blocks position `minorPos`.*/
+    const makeSpark = useCallback((minorPos: number) => {
+        // Determine the actual position of the spark.
+        // Depending on whether this is a wall collision (the minor block is at position `0`)
+        // or block collision, it must be shifted to appear at the corresponding side.
+        let sparkPos: number
+        if (minorPos == 0) {
+            sparkPos = minorPos * distanceScale + padding
+        } else {
+            sparkPos = minorPos * distanceScale + padding + minorLength
+        }
+
+        makeSparkRef.current(
+            sparkPos,
+            randomInt(sparkYRange[0], sparkYRange[1]) + padding,
+        )
+    }, [])
+
     const rafId = useRef<number | null>(null)
     useEffect(() => {
         const colls = simulateCollisions()
-        setCollisions(colls)
 
         const startTime = performance.now()
 
@@ -76,25 +106,20 @@ export default function PiCollider() {
             const index = collAnimationIndex.current
             const lastIndex = index - 1
 
+            // Now we play the spark animations based on the collisions that happened in this frame.
+            // They are capped at `sparkBurstLimit` per frame.
+
             const passedColls = index - initialIndex
             for (let i = 0; i < Math.min(passedColls, sparkBurstLimit); i++) {
-                const collPos = colls[lastIndex].minorPos
-                let sparkPos: number
-                if (collPos == 0) {
-                    sparkPos = collPos * distanceScale + padding
-                } else {
-                    sparkPos = collPos * distanceScale + padding + minorLength
-                }
-                makeSparkRef.current(
-                    sparkPos,
-                    randomInt(
-                        majorLength - minorLength * 0.9,
-                        majorLength - minorLength * 0.1,
-                    ) + padding,
-                )
+                // We take the position of the last collision as position of the sparks,
+                // this is usually accurate enough as when stacking happens, the collisions are also very close by.
+                makeSpark(colls[lastIndex].minorPos)
             }
 
-            setCollisionCounter(index + 1)
+            // Update the collision count.
+            // That count is exactly at `index` and not `index + 1` because the index points at the collision that
+            // will happen next in the future.
+            setCollisionCounter(index)
 
             const minorPos = getPosition(
                 colls[lastIndex].minorPos,
@@ -113,7 +138,15 @@ export default function PiCollider() {
 
             blockMover.current(minorPos, majorPos)
 
-            if (collAnimationIndex.current + 1 < colls.length) {
+            if (
+                index == colls.length - 1 &&
+                elapsedTime > colls[index].time * timeScale
+            ) {
+                // Once we are at the last index and the time has reached the point of that last collision,
+                // we must invoke that last collision here.
+                makeSpark(colls[index].minorPos)
+                setCollisionCounter(index + 1)
+            } else {
                 rafId.current = requestAnimationFrame(increment)
             }
         }
@@ -153,6 +186,17 @@ export default function PiCollider() {
 }
 type BlockMover = (minor: number, major: number) => void
 
+/**A snapshot of the block states at the point of a collision.
+ *
+ * @prop time
+ *  The absolute time of this collision.
+ * @prop deltaTime
+ *  The time elapsed since the last collision.
+ * @prop minorVel
+ *  The velocity of the minor block after the collision.
+ * @prop majorVel
+ *  The velocity of the major block after the collision.
+ * */
 type CollisionRecord = {
     time: number
     deltaTime: number
@@ -181,10 +225,14 @@ function simulateCollisions(): CollisionRecord[] {
     }
 
     const collisions: CollisionRecord[] = []
+    // While the animation shows the blocks moving in,
+    // for the calculation we start when they initially collide.
     majorMass.pos = minorMass.pos
     let totalTime = 0
 
     while (true) {
+        // First: Block-to-block collision.
+
         // Check if the minor mass is fast enough to catch up with the major mass.
         if (majorMass.vel >= minorMass.vel) break
         const relVel = majorMass.vel - minorMass.vel
@@ -194,6 +242,14 @@ function simulateCollisions(): CollisionRecord[] {
         majorMass.pos = minorMass.pos
 
         totalTime += blockDt
+
+        const [dMinorVel, dMajorVel] = getCollisionVelocityDelta(
+            relVel,
+            minorMass.mass,
+            majorMass.mass,
+        )
+        minorMass.vel += dMinorVel
+        majorMass.vel += dMajorVel
         collisions.push({
             time: totalTime,
             deltaTime: blockDt,
@@ -203,13 +259,7 @@ function simulateCollisions(): CollisionRecord[] {
             majorPos: majorMass.pos,
         })
 
-        const [dMinorVel, dMajorVel] = getCollisionVelocityDelta(
-            relVel,
-            minorMass.mass,
-            majorMass.mass,
-        )
-        minorMass.vel += dMinorVel
-        majorMass.vel += dMajorVel
+        // Second: Block-to-wall collision.
 
         // Check if the minor mass moves towards the wall.
         if (minorMass.vel >= 0) break
@@ -219,6 +269,8 @@ function simulateCollisions(): CollisionRecord[] {
         majorMass.pos = majorMass.pos + wallDt * majorMass.vel
 
         totalTime += wallDt
+
+        minorMass.vel = -minorMass.vel
         collisions.push({
             time: totalTime,
             deltaTime: wallDt,
@@ -227,8 +279,6 @@ function simulateCollisions(): CollisionRecord[] {
             minorPos: minorMass.pos,
             majorPos: majorMass.pos,
         })
-
-        minorMass.vel = -minorMass.vel
     }
     return collisions
 }
