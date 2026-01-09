@@ -25,7 +25,14 @@ import { randomInt } from "@/app/lib/math"
 const timeScale = 10
 const distanceScale = 8
 
-const massRatio = 1000000
+const massRatio = 10000
+/** The initial velocity of the major block.
+ * The minor block stays still.*/
+const initialVel = -1
+
+/**The initial positions of the minor and major block.*/
+const initialPos = [100, 130]
+
 const minorLength = 100
 const sizeRatio = (1 + Math.log(massRatio) / Math.log(100)) ** 0.8
 // ↑ The visual size ratio between the blocks.
@@ -41,6 +48,7 @@ const sparkBurstLimit = 12
 const flyOutTime = 60 * 1000
 // ↑ The time [ms] that the blocks will fly out after their final collision.
 // Sufficient to push them far beyond the viewport.
+const flyInTime = 500
 
 const sparkYRange = [
     majorLength - minorLength * 0.9,
@@ -66,7 +74,7 @@ export default function PiCollider() {
     const [collisionCounter, setCollisionCounter] = useState(0)
     const makeSparkRef = useRef<(x: number, y: number) => void>(null!)
 
-    const collAnimationIndex = useRef(0)
+    const collAnimationIndex = useRef(1)
     const padding = 80
 
     /**Create a spark burst for the blocks.
@@ -92,7 +100,28 @@ export default function PiCollider() {
     useEffect(() => {
         const colls = simulateCollisions()
 
-        const startTime = performance.now()
+        let startTime = performance.now()
+
+        /**Animate the blocks flying in. Transitions to `animateCollisions` when done.*/
+        function animateFlyIn(timestamp: number) {
+            const elapsedTime = timestamp - startTime
+
+            const minorPos = initialPos[0]
+            const majorPos =
+                initialPos[1] + (elapsedTime * initialVel) / timeScale
+
+            blockMover.current(minorPos, Math.max(majorPos, minorPos))
+
+            if (majorPos <= minorPos) {
+                // Once the major block touches the minor block, transition to the collision animation.
+                // Also invoke the first collision.
+                makeSpark(minorPos)
+                startTime = timestamp
+                rafId.current = requestAnimationFrame(animateCollision)
+            } else {
+                rafId.current = requestAnimationFrame(animateFlyIn)
+            }
+        }
 
         /**Animate the blocks flying out. Assumes the last animation finished on the final position.*/
         function animateFlyOut(timestamp: number) {
@@ -113,7 +142,7 @@ export default function PiCollider() {
             }
         }
 
-        /**Animate the blocks colliding. Triggers the fly-out when done.*/
+        /**Animate the blocks colliding. Transitions to `animateFlyOut` when done.*/
         function animateCollision(timestamp: number) {
             const elapsedTime = timestamp - startTime
             const initialIndex = collAnimationIndex.current
@@ -170,13 +199,14 @@ export default function PiCollider() {
                 // we must invoke that last collision here.
                 makeSpark(colls[index].minorPos)
                 setCollisionCounter(index + 1)
+                // Transition to fly-out.
                 rafId.current = requestAnimationFrame(animateFlyOut)
             } else {
                 rafId.current = requestAnimationFrame(animateCollision)
             }
         }
 
-        rafId.current = requestAnimationFrame(animateCollision)
+        rafId.current = requestAnimationFrame(animateFlyIn)
 
         return () => {
             rafId.current && cancelAnimationFrame(rafId.current)
@@ -241,12 +271,12 @@ function simulateCollisions(): CollisionRecord[] {
     const minorMass: Mass = {
         mass: 1,
         vel: 0,
-        pos: 100,
+        pos: initialPos[0],
     }
     const majorMass: Mass = {
         mass: massRatio,
-        vel: -1,
-        pos: 200,
+        vel: initialVel,
+        pos: initialPos[1],
     }
 
     const collisions: CollisionRecord[] = []
