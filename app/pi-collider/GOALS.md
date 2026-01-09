@@ -14,6 +14,9 @@
   - It needs to be modify-able during an active simulation.
 - Animate the collision counter.
   - It jitters and grows every according to the current collision rate.
+- Viewport scaling
+  - During their collision phase, the blocks must always be visible.
+  - If a block exceeds the range, scale down the simulation to remain in the viewport.
 
 # 🟢 Done
 

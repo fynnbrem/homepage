@@ -25,7 +25,7 @@ import { randomInt } from "@/app/lib/math"
 const timeScale = 10
 const distanceScale = 8
 
-const massRatio = 10000
+const massRatio = 1000000
 const minorLength = 100
 const sizeRatio = (1 + Math.log(massRatio) / Math.log(100)) ** 0.8
 // ↑ The visual size ratio between the blocks.
@@ -37,6 +37,10 @@ const sparkBurstLimit = 12
 // ↑ The limit of spark burst animations that can trigger in a single frame.
 // 12 seems to be a number that makes the animation not too dense while still
 // making high collision densities satisfying to watch.
+
+const flyOutTime = 60 * 1000
+// ↑ The time [ms] that the blocks will fly out after their final collision.
+// Sufficient to push them far beyond the viewport.
 
 const sparkYRange = [
     majorLength - minorLength * 0.9,
@@ -90,7 +94,27 @@ export default function PiCollider() {
 
         const startTime = performance.now()
 
-        function increment(timestamp: number) {
+        /**Animate the blocks flying out. Assumes the last animation finished on the final position.*/
+        function animateFlyOut(timestamp: number) {
+            const finalColl = colls[colls.length - 1]
+            const elapsedTime =
+                timestamp - startTime - finalColl.time * timeScale
+
+            const minorPos =
+                (finalColl.minorVel * elapsedTime) / timeScale +
+                finalColl.minorPos
+            const majorPos =
+                (finalColl.majorVel * elapsedTime) / timeScale +
+                finalColl.majorPos
+
+            blockMover.current(minorPos, majorPos)
+            if (elapsedTime < flyOutTime) {
+                rafId.current = requestAnimationFrame(animateFlyOut)
+            }
+        }
+
+        /**Animate the blocks colliding. Triggers the fly-out when done.*/
+        function animateCollision(timestamp: number) {
             const elapsedTime = timestamp - startTime
             const initialIndex = collAnimationIndex.current
 
@@ -146,12 +170,13 @@ export default function PiCollider() {
                 // we must invoke that last collision here.
                 makeSpark(colls[index].minorPos)
                 setCollisionCounter(index + 1)
+                rafId.current = requestAnimationFrame(animateFlyOut)
             } else {
-                rafId.current = requestAnimationFrame(increment)
+                rafId.current = requestAnimationFrame(animateCollision)
             }
         }
 
-        rafId.current = requestAnimationFrame(increment)
+        rafId.current = requestAnimationFrame(animateCollision)
 
         return () => {
             rafId.current && cancelAnimationFrame(rafId.current)
