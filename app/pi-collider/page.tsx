@@ -1,44 +1,36 @@
 "use client"
-import {
-    Ref,
-    useCallback,
-    useEffect,
-    useImperativeHandle,
-    useRef,
-    useState,
-} from "react"
-import { getCollisionVelocityDelta } from "@/app/lib/physics/collision"
-import { Box, Typography } from "@mui/material"
-import { blue, orange, red } from "@mui/material/colors"
-import {
-    LineChart,
-    Line,
-    XAxis,
-    YAxis,
-    CartesianGrid,
-    Tooltip,
-    ResponsiveContainer,
-} from "recharts"
+import React, { useCallback, useEffect, useRef, useState } from "react"
+import { alpha, Box, Paper, Typography } from "@mui/material"
 import BurstCanvas from "@/app/pi-collider/BurstCanvas"
 import { randomInt } from "@/app/lib/math"
+import { BlockConfig, simulateCollisions } from "@/app/pi-collider/collisions"
+import { BlockMover, Blocks } from "@/app/pi-collider/Blocks"
+import { GrowCounter } from "@/app/pi-collider/GrowCounter"
+import { theme } from "@/app/lib/theme"
 
-const timeScale = 10
-const distanceScale = 8
+const timeScale = 100
+const distanceScale = 30
 
-const massRatio = 10000
-/** The initial velocity of the major block.
- * The minor block stays still.*/
-const initialVel = -1
-
-/**The initial positions of the minor and major block.*/
-const initialPos = [100, 130]
-
-const minorLength = 100
+const massRatio = 10000000000
+const minorLength = 80
 const sizeRatio = (1 + Math.log(massRatio) / Math.log(100)) ** 0.8
 // ↑ The visual size ratio between the blocks.
 // We assume mass ratios growing according to `100^n` due to how it affects the generated digits.
 // So we normalize the size to this scale and add an exponent of `0.8` to smooth out extreme numbers.
-const majorLength = 100 * sizeRatio
+const majorLength = minorLength * sizeRatio
+
+const blockConfig: BlockConfig = {
+    minor: {
+        mass: 1,
+        vel: 0,
+        pos: 20,
+    },
+    major: {
+        mass: massRatio,
+        vel: -1,
+        pos: 25,
+    },
+}
 
 const sparkBurstLimit = 12
 // ↑ The limit of spark burst animations that can trigger in a single frame.
@@ -48,7 +40,6 @@ const sparkBurstLimit = 12
 const flyOutTime = 60 * 1000
 // ↑ The time [ms] that the blocks will fly out after their final collision.
 // Sufficient to push them far beyond the viewport.
-const flyInTime = 500
 
 const sparkYRange = [
     majorLength - minorLength * 0.9,
@@ -69,11 +60,60 @@ function getPosition(
     return startPos + (endPos - startPos) * relTime
 }
 
+/**
+ * A floating box with a counter that grows with the growth rate of its number.
+ * It has a fixed height, but will visually overflow downwards as the counter grows.
+ * It also floats on z-index 999 to render above the content it counts for.
+ *
+ * @param props.ref
+ *  A handle to increment the counter.
+ */
+function CounterBox(props: { ref: React.RefObject<(x: number) => void> }) {
+    return (
+        <Box
+            sx={{
+                position: "relative",
+                height: 10,
+                display: "flex",
+                justifyContent: "center",
+                overflow: "visible",
+                padding: 8,
+                width: "100%",
+                zIndex: 999,
+            }}
+        >
+            <Paper
+                sx={{
+                    background: alpha(theme.palette.background.default, 0.6),
+                    borderRadius: 4,
+                    padding: 2,
+                    display: "flex",
+                    alignItems: "center",
+                    overflow: "visible",
+                    flexDirection: "column",
+                    width: "fit-content",
+                    height: "fit-content",
+                }}
+                elevation={4}
+            >
+                {/*The text boxes are slimmed down to better visually connect.
+                    The counter does this via reduced line height, the text box via the margin.*/}
+                <GrowCounter ref={props.ref} />
+                <Box sx={{ fontSize: "larger", marginBottom: -1 }}>
+                    collisions
+                </Box>
+            </Paper>
+        </Box>
+    )
+}
+
 export default function PiCollider() {
     const blockMover = useRef<BlockMover>(null!)
-    const [collisionCounter, setCollisionCounter] = useState(0)
     const makeSparkRef = useRef<(x: number, y: number) => void>(null!)
+    const counterRef = useRef<(x: number) => void>(null!)
 
+    // The index the collision animation currently is at.
+    // We start at `1` as this is sets the upcoming collision, not the latest.
     const collAnimationIndex = useRef(1)
     const padding = 80
 
@@ -85,7 +125,7 @@ export default function PiCollider() {
         // or block collision, it must be shifted to appear at the corresponding side.
         let sparkPos: number
         if (minorPos == 0) {
-            sparkPos = minorPos * distanceScale + padding
+            sparkPos = padding
         } else {
             sparkPos = minorPos * distanceScale + padding + minorLength
         }
@@ -98,7 +138,7 @@ export default function PiCollider() {
 
     const rafId = useRef<number | null>(null)
     useEffect(() => {
-        const colls = simulateCollisions()
+        const colls = simulateCollisions(blockConfig)
 
         let startTime = performance.now()
 
@@ -106,9 +146,10 @@ export default function PiCollider() {
         function animateFlyIn(timestamp: number) {
             const elapsedTime = timestamp - startTime
 
-            const minorPos = initialPos[0]
+            const minorPos = blockConfig.minor.pos
             const majorPos =
-                initialPos[1] + (elapsedTime * initialVel) / timeScale
+                blockConfig.major.pos +
+                (elapsedTime * blockConfig.major.vel) / timeScale
 
             blockMover.current(minorPos, Math.max(majorPos, minorPos))
 
@@ -116,6 +157,7 @@ export default function PiCollider() {
                 // Once the major block touches the minor block, transition to the collision animation.
                 // Also invoke the first collision.
                 makeSpark(minorPos)
+                counterRef.current(1)
                 startTime = timestamp
                 rafId.current = requestAnimationFrame(animateCollision)
             } else {
@@ -172,7 +214,7 @@ export default function PiCollider() {
             // Update the collision count.
             // That count is exactly at `index` and not `index + 1` because the index points at the collision that
             // will happen next in the future.
-            setCollisionCounter(index)
+            counterRef.current(passedColls)
 
             const minorPos = getPosition(
                 colls[lastIndex].minorPos,
@@ -198,7 +240,7 @@ export default function PiCollider() {
                 // Once we are at the last index and the time has reached the point of that last collision,
                 // we must invoke that last collision here.
                 makeSpark(colls[index].minorPos)
-                setCollisionCounter(index + 1)
+                counterRef.current(1)
                 // Transition to fly-out.
                 rafId.current = requestAnimationFrame(animateFlyOut)
             } else {
@@ -214,9 +256,10 @@ export default function PiCollider() {
     }, [])
 
     return (
-        <Box>
-            <Typography variant={"h4"}>{collisionCounter}</Typography>
+        <>
+            <CounterBox ref={counterRef} />
             <Box sx={{ position: "relative" }}>
+                {/*Make the burst canvas overlay the boxes.*/}
                 <BurstCanvas
                     ref={makeSparkRef}
                     style={{
@@ -234,205 +277,9 @@ export default function PiCollider() {
                     majorLength={majorLength}
                     minorMass={1}
                     majorMass={massRatio}
+                    distanceScale={distanceScale}
                 />
             </Box>
-        </Box>
-    )
-}
-type BlockMover = (minor: number, major: number) => void
-
-/**A snapshot of the block states at the point of a collision.
- *
- * @prop time
- *  The absolute time of this collision.
- * @prop deltaTime
- *  The time elapsed since the last collision.
- * @prop minorVel
- *  The velocity of the minor block after the collision.
- * @prop majorVel
- *  The velocity of the major block after the collision.
- * */
-type CollisionRecord = {
-    time: number
-    deltaTime: number
-    minorVel: number
-    majorVel: number
-    minorPos: number
-    majorPos: number
-}
-
-type Mass = {
-    mass: number
-    vel: number
-    pos: number
-}
-
-function simulateCollisions(): CollisionRecord[] {
-    const minorMass: Mass = {
-        mass: 1,
-        vel: 0,
-        pos: initialPos[0],
-    }
-    const majorMass: Mass = {
-        mass: massRatio,
-        vel: initialVel,
-        pos: initialPos[1],
-    }
-
-    const collisions: CollisionRecord[] = []
-    // While the animation shows the blocks moving in,
-    // for the calculation we start when they initially collide.
-    majorMass.pos = minorMass.pos
-    let totalTime = 0
-
-    while (true) {
-        // First: Block-to-block collision.
-
-        // Check if the minor mass is fast enough to catch up with the major mass.
-        if (majorMass.vel >= minorMass.vel) break
-        const relVel = majorMass.vel - minorMass.vel
-        const blockDt = -(majorMass.pos - minorMass.pos) / relVel
-
-        minorMass.pos = minorMass.pos + blockDt * minorMass.vel
-        majorMass.pos = minorMass.pos
-
-        totalTime += blockDt
-
-        const [dMinorVel, dMajorVel] = getCollisionVelocityDelta(
-            relVel,
-            minorMass.mass,
-            majorMass.mass,
-        )
-        minorMass.vel += dMinorVel
-        majorMass.vel += dMajorVel
-        collisions.push({
-            time: totalTime,
-            deltaTime: blockDt,
-            minorVel: minorMass.vel,
-            majorVel: majorMass.vel,
-            minorPos: minorMass.pos,
-            majorPos: majorMass.pos,
-        })
-
-        // Second: Block-to-wall collision.
-
-        // Check if the minor mass moves towards the wall.
-        if (minorMass.vel >= 0) break
-
-        const wallDt = -minorMass.pos / minorMass.vel
-        minorMass.pos = 0
-        majorMass.pos = majorMass.pos + wallDt * majorMass.vel
-
-        totalTime += wallDt
-
-        minorMass.vel = -minorMass.vel
-        collisions.push({
-            time: totalTime,
-            deltaTime: wallDt,
-            minorVel: minorMass.vel,
-            majorVel: majorMass.vel,
-            minorPos: minorMass.pos,
-            majorPos: majorMass.pos,
-        })
-    }
-    return collisions
-}
-
-function Charts(props: { collisions: CollisionRecord[] }) {
-    const posData = props.collisions.map((c) => ({
-        t: c.time,
-        mn: c.minorPos,
-        mj: c.majorPos,
-    }))
-
-    return (
-        <ResponsiveContainer
-            width="100%"
-            height={300}
-        >
-            <LineChart data={posData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="t" />
-                <YAxis />
-                <Tooltip />
-                <Line
-                    type="linear"
-                    dataKey="mn"
-                    stroke={red[700]}
-                    dot
-                />
-                <Line
-                    type="linear"
-                    dataKey="mj"
-                    stroke={blue[700]}
-                    dot
-                />
-            </LineChart>
-        </ResponsiveContainer>
-    )
-}
-
-function Blocks(props: {
-    blockMover: Ref<BlockMover>
-    minorLength: number
-    majorLength: number
-    minorMass: number
-    majorMass: number
-    padding: number
-}) {
-    const minorBlockRef = useRef<HTMLDivElement>(null!)
-    const majorBlockRef = useRef<HTMLDivElement>(null!)
-
-    function setBlockPosition(minorPos: number, majorPos: number) {
-        minorBlockRef.current.style.transform = `translateX(${minorPos * distanceScale}px)`
-        majorBlockRef.current.style.transform = `translateX(${majorPos * distanceScale + props.minorLength}px)`
-    }
-
-    useImperativeHandle(props.blockMover, () => setBlockPosition)
-
-    return (
-        <Box
-            sx={{
-                position: "relative",
-                height: Math.max(props.minorLength, props.majorLength),
-                margin: `${props.padding}px`,
-                fontFamily: "Cambria Math, Cambria, serif",
-                fontSize: 32,
-                textShadow: "2px 2px 2px rgba(0, 0, 0, 0.5)",
-            }}
-        >
-            <Box
-                ref={minorBlockRef}
-                sx={{
-                    width: props.minorLength,
-                    height: props.minorLength,
-                    position: "absolute",
-                    bottom: 0,
-                    transform: `translateX(0px)`,
-                    background: orange[900],
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                }}
-            >
-                {props.minorMass} kg
-            </Box>
-            <Box
-                ref={majorBlockRef}
-                sx={{
-                    width: props.majorLength,
-                    height: props.majorLength,
-                    position: "absolute",
-                    bottom: 0,
-                    transform: `translateX(${props.minorLength}px)`,
-                    background: orange[600],
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                }}
-            >
-                {props.majorMass} kg
-            </Box>
-        </Box>
+        </>
     )
 }
