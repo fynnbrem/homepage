@@ -1,5 +1,5 @@
-import { Link } from "@mui/material";
-import { LinkProps } from "@mui/material/Link/Link";
+import { Link } from "@mui/material"
+import { LinkProps } from "@mui/material/Link/Link"
 
 /**An external link. Builds on the Material UI `<Link>`.
  * The link will be opened in a new tab and has `rel="noopener"`. */

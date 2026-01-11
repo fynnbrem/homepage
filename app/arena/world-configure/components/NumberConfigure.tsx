@@ -1,10 +1,18 @@
-import React, { useState } from "react";
-import { alpha, Box, IconButton, Slider as MuiSlider, Stack, Switch, Tooltip } from "@mui/material";
-import Knob from "@/app/arena/world-configure/components/Knob";
-import { palette } from "@/app/lib/theme";
-import { radToDegree, roundTo } from "@/app/lib/math";
-import { InfoOutlined } from "@mui/icons-material";
-import { SmallTextField } from "@/app/arena/world-configure/components/TextFieldSpecial";
+import React, { useState } from "react"
+import {
+    alpha,
+    Box,
+    IconButton,
+    Slider as MuiSlider,
+    Stack,
+    Switch,
+    Tooltip,
+} from "@mui/material"
+import Knob from "@/app/arena/world-configure/components/Knob"
+import { palette } from "@/app/lib/theme"
+import { radToDegree, roundTo } from "@/app/lib/math"
+import { InfoOutlined } from "@mui/icons-material"
+import { SmallTextField } from "@/app/arena/world-configure/components/TextFieldSpecial"
 
 /**The slider. Requires the transformed values.*/
 function Slider(props: {

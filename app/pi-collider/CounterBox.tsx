@@ -1,6 +1,6 @@
 import React from "react"
 import { alpha, Box, Paper } from "@mui/material"
-import { theme } from "@/app/lib/theme"
+import { theme, zIndex } from "@/app/lib/theme"
 import { GrowCounter, GrowCounterHandle } from "@/app/pi-collider/GrowCounter"
 
 /**
@@ -25,7 +25,7 @@ export function CounterBox(props: {
                 overflow: "visible",
                 padding: 8,
                 width: "100%",
-                zIndex: 999
+                zIndex: zIndex.counter
             }}
         >
             <Paper

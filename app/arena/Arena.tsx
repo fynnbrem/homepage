@@ -1,15 +1,20 @@
-"use client";
-import React, { RefObject, useEffect, useRef, useState } from "react";
-import { Vector2 } from "math.gl";
+"use client"
+import React, { RefObject, useEffect, useRef, useState } from "react"
+import { Vector2 } from "math.gl"
 import {
     getStaticConfiguration,
     useConfiguration,
-    WorldConfigurationStatic
-} from "@/app/providers/ConfigurationProvider";
-import { Box } from "@mui/material";
-import { moveBalls } from "@/app/lib/physics/ball-movement/movement";
-import { Ball, cloneBalls, updateBallPath, VoidBall } from "@/app/lib/physics/ball-movement/model";
-import ArenaContent from "@/app/arena/ArenaContent";
+    WorldConfigurationStatic,
+} from "@/app/providers/ConfigurationProvider"
+import { Box } from "@mui/material"
+import { moveBalls } from "@/app/lib/physics/ball-movement/movement"
+import {
+    Ball,
+    cloneBalls,
+    updateBallPath,
+    VoidBall,
+} from "@/app/lib/physics/ball-movement/model"
+import ArenaContent from "@/app/arena/ArenaContent"
 
 /**Freezes the entire simulation.*/
 const freeze = false

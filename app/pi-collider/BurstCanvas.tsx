@@ -1,13 +1,7 @@
 "use client"
 
-import React, {
-    useCallback,
-    useEffect,
-    useImperativeHandle, useMemo,
-    useRef
-} from "react"
+import React, { useEffect, useImperativeHandle, useMemo, useRef } from "react"
 import { randomFloat, randomInt } from "@/app/lib/math"
-import { useClickAnyWhere } from "usehooks-ts"
 
 type Particle = {
     direction: [number, number]

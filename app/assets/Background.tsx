@@ -1,8 +1,8 @@
-"use client";
-import * as React from "react";
-import { useState } from "react";
-import { Box } from "@mui/material";
-import { useEventListener } from "usehooks-ts";
+"use client"
+import * as React from "react"
+import { useState } from "react"
+import { Box } from "@mui/material"
+import { useEventListener } from "usehooks-ts"
 
 /**Calculates the factor required to scale the `width` to  the `targetWidth`.
  * This returns `1` if `width >= targetWidth`*/

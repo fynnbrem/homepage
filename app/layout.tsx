@@ -5,7 +5,9 @@ import Head from "next/head"
 import Providers from "@/app/providers/Providers"
 import { grey } from "@mui/material/colors"
 import DynamicBackground from "@/app/assets/DynamicBackground"
-import React from "react"
+import React, { Suspense } from "react"
+import AboutMe from "@/app/about-me/AboutMe"
+import GithubBadge from "@/app/components/GithubBadge"
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -42,7 +44,15 @@ export default function RootLayout({
             <body
                 className={`${geistSans.variable} ${geistMono.variable} antialiased`}
             >
-                <Providers>{children}</Providers>
+                <Providers>
+                    {children}
+                    <Suspense>
+                        <AboutMe />
+                    </Suspense>
+                    <GithubBadge
+                        link={"https://github.com/fynnbrem/homepage"}
+                    />
+                </Providers>
                 <DynamicBackground color={grey[800]} />
             </body>
         </html>

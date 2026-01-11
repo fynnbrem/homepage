@@ -1,5 +1,5 @@
 "use client"
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import React, { useCallback, useEffect, useRef, useState } from "react"
 import { Box, Button } from "@mui/material"
 import BurstCanvas from "@/app/pi-collider/BurstCanvas"
 import { randomInt } from "@/app/lib/math"
@@ -18,6 +18,7 @@ import NumberConfigure from "@/app/arena/world-configure/components/NumberConfig
 import { PlayArrow } from "@mui/icons-material"
 import { CounterBox } from "@/app/pi-collider/CounterBox"
 import { GrowCounterHandle } from "@/app/pi-collider/GrowCounter"
+import { zIndex } from "@/app/lib/theme"
 
 const timeScale = 100
 const distanceScale = 30
@@ -342,7 +343,7 @@ export default function PiCollider() {
                             width: "100%",
                             height: simConfig.current.majorLength + 2 * padding,
                             position: "absolute",
-                            zIndex: 999,
+                            zIndex: zIndex.counter - 1,
                             top: -padding,
                         }}
                     />

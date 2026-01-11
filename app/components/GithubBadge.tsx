@@ -1,17 +1,16 @@
-import { Fab } from "@mui/material";
-import { zIndex } from "@/app/lib/theme";
-import { Github } from "@/app/assets/Icons";
-import { useState } from "react";
-import ExternalLink from "@/app/components/ExternalLink";
+"use client"
+import { Fab } from "@mui/material"
+import { zIndex } from "@/app/lib/theme"
+import { Github } from "@/app/assets/Icons"
+import { useState } from "react"
+import ExternalLink from "@/app/components/ExternalLink"
 
 /**Displays a badge with the GitHub icon, referring to the `link`.
  * The badge will be placed at the bottom right of the viewport.*/
 export default function GithubBadge({ link }: { link: string }) {
     const [isHovered, setIsHovered] = useState(false)
     return (
-        <ExternalLink
-            href={link}
-        >
+        <ExternalLink href={link}>
             <Fab
                 color={"primary"}
                 sx={{

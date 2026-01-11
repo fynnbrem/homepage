@@ -1,6 +1,6 @@
 import React, { useImperativeHandle, useState } from "react"
 import { useInterval } from "usehooks-ts"
-import { Box, Typography } from "@mui/material"
+import { Box } from "@mui/material"
 
 const flowDecay = 0.9
 const noiseFloor = 0.05

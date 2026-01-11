@@ -1,7 +1,7 @@
-import { Ball } from "@/app/lib/physics/ball-movement/model";
-import { Vector2 } from "math.gl";
-import { v4 } from "uuid";
-import { getRandomItem } from "@/app/lib/math";
+import { Ball } from "@/app/lib/physics/ball-movement/model"
+import { Vector2 } from "math.gl"
+import { v4 } from "uuid"
+import { getRandomItem } from "@/app/lib/math"
 
 /**A reduced representation of a `Ball`.
  * This only contains the values that can be configured,

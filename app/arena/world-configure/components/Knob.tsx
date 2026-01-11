@@ -1,10 +1,10 @@
-import { Box, Button } from "@mui/material";
-import React, { useRef } from "react";
-import { Vector2 } from "math.gl";
-import { NavigationRounded } from "@mui/icons-material";
-import { palette } from "@/app/lib/theme";
-import { useEventListener } from "usehooks-ts";
-import { getRotatedVector } from "@/app/lib/math";
+import { Box, Button } from "@mui/material"
+import React, { useRef } from "react"
+import { Vector2 } from "math.gl"
+import { NavigationRounded } from "@mui/icons-material"
+import { palette } from "@/app/lib/theme"
+import { useEventListener } from "usehooks-ts"
+import { getRotatedVector } from "@/app/lib/math"
 
 /**Calculates the clockwise angle [rad] that the `vector` has to the positive y-axis.*/
 function getClockWiseAngle(vector: Vector2): number {

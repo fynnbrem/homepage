@@ -17,8 +17,9 @@ export const theme = createTheme({
 })
 
 export const zIndex = {
-    badge: 5,
-    aboutMe: 10,
+    counter: 10,
+    badge: 90,
+    aboutMe: 100,
 }
 
 export const spacing = parseFloat(theme.spacing(1))

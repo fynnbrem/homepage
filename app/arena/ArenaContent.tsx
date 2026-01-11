@@ -1,6 +1,6 @@
-import React from "react";
-import { Vector2 } from "math.gl";
-import { Ball } from "@/app/lib/physics/ball-movement/model";
+import React from "react"
+import { Vector2 } from "math.gl"
+import { Ball } from "@/app/lib/physics/ball-movement/model"
 
 /**The components contained within the arena.
  * These are:

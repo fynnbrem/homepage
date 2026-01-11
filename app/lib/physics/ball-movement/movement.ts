@@ -1,7 +1,10 @@
-import { Directional, WorldConfigurationStatic } from "@/app/providers/ConfigurationProvider";
-import { getRotatedVector } from "@/app/lib/math";
-import { Vector2 } from "math.gl";
-import { Ball, VoidBall } from "@/app/lib/physics/ball-movement/model";
+import {
+    Directional,
+    WorldConfigurationStatic,
+} from "@/app/providers/ConfigurationProvider"
+import { getRotatedVector } from "@/app/lib/math"
+import { Vector2 } from "math.gl"
+import { Ball, VoidBall } from "@/app/lib/physics/ball-movement/model"
 import { getCollisionVelocityDelta } from "@/app/lib/physics/collision"
 
 /**Moves the balls by applying all active forces to it (global gravity, inter-ball gravity, collision)
@@ -177,7 +180,12 @@ function collideBalls(ball1: Ball, ball2: Ball, overlap: number) {
         ball2.elasticity,
     )
     // Apply the impulse
-    const [dVel1, dVel2] = getCollisionVelocityDelta(collisionVel, ball1.mass, ball2.mass, restitution)
+    const [dVel1, dVel2] = getCollisionVelocityDelta(
+        collisionVel,
+        ball1.mass,
+        ball2.mass,
+        restitution,
+    )
     ball1.vel.add(collisionNorm.clone().scale(dVel1))
     ball2.vel.add(collisionNorm.clone().scale(dVel2))
     // Move the balls out of the overlap.

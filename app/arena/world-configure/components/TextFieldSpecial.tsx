@@ -1,8 +1,8 @@
-import React, { useState } from "react";
-import { TextField, TextFieldProps } from "@mui/material";
-import { palette } from "@/app/lib/theme";
-import { truncateToMaxDecimalPlaces } from "@/app/lib/string";
-import { floorTo } from "@/app/lib/math";
+import React, { useState } from "react"
+import { TextField, TextFieldProps } from "@mui/material"
+import { palette } from "@/app/lib/theme"
+import { truncateToMaxDecimalPlaces } from "@/app/lib/string"
+import { floorTo } from "@/app/lib/math"
 
 /**A small text field to fit in with the <NumberConfigure>.*/
 export function SmallTextField(props: {

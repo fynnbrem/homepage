@@ -1,3 +1,4 @@
+"use client"
 import { Backdrop, Box, Button, Paper, Stack } from "@mui/material"
 import React, { useEffect, useMemo, useState } from "react"
 import { zIndex } from "@/app/lib/theme"
@@ -47,8 +48,6 @@ export default function AboutMe() {
             return clearTimeout(timeout)
         }
     }, [open])
-
-
 
     return (
         <>
