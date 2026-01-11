@@ -29,7 +29,8 @@ export function Blocks(props: {
                 position: "relative",
                 height: Math.max(props.minorLength, props.majorLength),
                 margin: `${props.padding}px`,
-                fontFamily: "Cambria Math, Cambria, serif",
+                fontFamily: '"Cambria Math", "Cambria", serif',
+                fontVariantNumeric: "lining-nums tabular-nums",
                 fontSize: 32,
                 textShadow: "2px 2px 2px rgba(0, 0, 0, 0.5)",
             }}

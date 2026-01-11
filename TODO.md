@@ -47,7 +47,11 @@
   
 # 🟡 Planned
 
-
+- Interaction: Clicking increases pointer gravity.
+  - Holding the mouse button down while in the arena increases the gravity 10x.
+  - Also increases the intensity of the pointer light.
+  - Add a note to the point gravity info box that you can do that.
+  - Right-click causes negative gravity.
 - Visuals: Adaptive Layout
 - Interaction: Better Collision
     - Collision Interpolation (For high speed collisions)

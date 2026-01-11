@@ -11,7 +11,7 @@ import { getCollisionVelocityDelta } from "@/app/lib/physics/collision"
  * @prop majorVel
  *  The velocity of the major block after the collision.
  * */
-type CollisionRecord = {
+export type CollisionRecord = {
     time: number
     deltaTime: number
     minorVel: number
