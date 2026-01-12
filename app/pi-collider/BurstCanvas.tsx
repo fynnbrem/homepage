@@ -151,7 +151,7 @@ export default function BurstCanvas(props: {
             function createBursHandle(x: number, y: number) {
                 bursts.push(createBurst(config, performance.now(), [x, y]))
             },
-        [bursts, config],
+        [bursts],
     )
 
     return (

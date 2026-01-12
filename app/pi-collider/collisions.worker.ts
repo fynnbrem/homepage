@@ -1,6 +1,5 @@
 import {
     BlockConfig,
-    CollisionRecord,
     simulateCollisions,
 } from "@/app/pi-collider/collisions"
 
