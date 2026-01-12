@@ -1,0 +1,33 @@
+.cube {
+    /*Input color. Should be overridden in the HTML with the actual color.*/
+    --front: #ffffff;
+    --top: color-mix(in oklab, var(--front) 85%, white);
+    --side: color-mix(in oklab, var(--front) 85%, black);
+    /*background: var(--front);*/
+}
+
+/* Define escaping side faces for the cube so it looks 3D.*/
+.cube::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    /*Slightly inset the side as otherwise there is a small gap.*/
+    right: -25px;
+    width: 26px;
+    height: 100%;
+    background: var(--side);
+    transform: skewY(-35deg);
+    transform-origin: left top;
+}
+
+.cube::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: -18px;
+    width: 100%;
+    height: 18px;
+    background: var(--top);
+    transform: skewX(-55deg);
+    transform-origin: left bottom;
+}

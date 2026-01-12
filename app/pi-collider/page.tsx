@@ -273,6 +273,9 @@ export default function PiCollider() {
 
             blockMover.current(minorPos, majorPos)
 
+            console.log(collisionBoxRef.current.getBoundingClientRect())
+
+
             if (
                 index == colls.length - 1 &&
                 elapsedTime > colls[index].time * timeScale

@@ -1,8 +1,20 @@
-import { Ref, useImperativeHandle, useRef } from "react"
-import { Box } from "@mui/material"
+import { Ref, useImperativeHandle, useMemo, useRef } from "react"
+import { Box, darken, lighten } from "@mui/material"
 import { orange } from "@mui/material/colors"
+import styles from "./Cube.module.css"
 
 export type BlockMover = (minor: number, major: number) => void
+
+/**
+ * A slight gradient derived from the `base` color that has light shining from the top-left.
+ */
+const materialGradient = (base: string) =>
+    `linear-gradient(
+    135deg,
+    ${lighten(base, 0.1)} 0%,
+    ${base} 50%,
+    ${darken(base, 0.15)} 100%
+    )`
 
 export function Blocks(props: {
     blockMover: Ref<BlockMover>
@@ -21,6 +33,12 @@ export function Blocks(props: {
         majorBlockRef.current.style.transform = `translateX(${majorPos * props.distanceScale + props.minorLength}px)`
     }
 
+    const colors = [orange[900], orange[600]]
+    const backgrounds = useMemo(
+        () => [materialGradient(colors[0]), materialGradient(colors[1])],
+        [],
+    )
+
     useImperativeHandle(props.blockMover, () => setBlockPosition)
 
     return (
@@ -28,6 +46,7 @@ export function Blocks(props: {
             sx={{
                 position: "relative",
                 height: Math.max(props.minorLength, props.majorLength),
+                // We use px as unit so the position and canvas calculations stay straightforward.
                 margin: `${props.padding}px`,
                 fontFamily: '"Cambria Math", "Cambria", serif',
                 fontVariantNumeric: "lining-nums tabular-nums",
@@ -43,11 +62,14 @@ export function Blocks(props: {
                     position: "absolute",
                     bottom: 0,
                     transform: `translateX(0px)`,
-                    background: orange[900],
+                    ["--front" as any]: colors[0],
+                    background: backgrounds[0],
                     display: "flex",
                     justifyContent: "center",
                     alignItems: "center",
+                    boxShadow: "0 10px 25px rgba(0,0,0,.25)",
                 }}
+                className={styles.cube}
             >
                 {props.minorMass} kg
             </Box>
@@ -59,11 +81,14 @@ export function Blocks(props: {
                     position: "absolute",
                     bottom: 0,
                     transform: `translateX(${props.minorLength}px)`,
-                    background: orange[600],
+                    ["--front" as any]: colors[1],
+                    background: backgrounds[1],
                     display: "flex",
                     justifyContent: "center",
                     alignItems: "center",
+                    boxShadow: "0 10px 25px rgba(0,0,0,.25)",
                 }}
+                className={styles.cube}
             >
                 {props.majorMass} kg
             </Box>
