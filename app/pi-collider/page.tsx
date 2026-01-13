@@ -4,7 +4,7 @@ import { Box, Button } from "@mui/material"
 import SparkCanvas from "@/app/pi-collider/BurstCanvas"
 import { randomInt } from "@/app/lib/math"
 import { BlockConfig, CollisionRecord } from "@/app/pi-collider/collisions"
-import { BlockMover, Blocks } from "@/app/pi-collider/Blocks"
+import { BlockMover, BlockProps, Blocks } from "@/app/pi-collider/Blocks"
 import {
     calculatePosition,
     interpolatePosition,
@@ -81,20 +81,21 @@ function getSimulationConfig(massRatio: number): SimulationConfig {
 function CollisionBox(props: {
     ref: React.RefObject<HTMLDivElement>
     makeSpark: React.RefObject<(x: number, y: number) => void>
-    simConfig: React.RefObject<SimulationConfig>
+    blockProps: BlockProps
     blockMover: React.RefObject<BlockMover>
     simConfigState: SimulationConfig
 }) {
-
-
     return (
-        <Box sx={{ position: "relative" }} ref={props.ref}>
+        <Box
+            sx={{ position: "relative" }}
+            ref={props.ref}
+        >
             {/*Make the burst canvas overlay the boxes.*/}
             <SparkCanvas
                 ref={props.makeSpark}
                 style={{
                     width: "100%",
-                    height: props.simConfig.current.majorLength + 2 * padding,
+                    height: props.blockProps.majorLength + 2 * padding,
                     position: "absolute",
                     zIndex: zIndex.counter - 1,
                     top: -padding,
@@ -103,10 +104,7 @@ function CollisionBox(props: {
             <Blocks
                 padding={padding}
                 blockMover={props.blockMover}
-                minorLength={props.simConfigState.minorLength}
-                majorLength={props.simConfigState.majorLength}
-                minorMass={1}
-                majorMass={props.simConfigState.massRatio}
+                blockProps={props.blockProps}
                 distanceScale={distanceScale}
             />
         </Box>
@@ -117,6 +115,7 @@ export default function PiCollider() {
     const [digits, setDigits_] = useState(4)
     /** Whether the last collision has passed, i.e. the simulation is in its final state.*/
     const [isFinal, setIsFinal] = useState(false)
+    const [processId, setProcessId] = useState(0)
     const blockMover = useRef<BlockMover>(null!)
     const makeSparkRef = useRef<(x: number, y: number) => void>(null!)
     const counterRef = useRef<GrowCounterHandle>(null!)
@@ -275,7 +274,6 @@ export default function PiCollider() {
 
             console.log(collisionBoxRef.current.getBoundingClientRect())
 
-
             if (
                 index == colls.length - 1 &&
                 elapsedTime > colls[index].time * timeScale
@@ -333,6 +331,7 @@ export default function PiCollider() {
         setSimConfigState(simConfig.current)
 
         function handle(result: CollisionRecord[]) {
+            setProcessId((v) => v + 1)
             // Run the simulation.
             collsRef.current = result
             startTimeRef.current = performance.now()
@@ -430,9 +429,17 @@ export default function PiCollider() {
                     </Button>
                 </Box>
                 <CollisionBox
+                    key={processId}
                     ref={collisionBoxRef}
                     makeSpark={makeSparkRef}
-                    simConfig={simConfig}
+                    blockProps={{
+                        minorLength: simConfigState.minorLength,
+                        majorLength: simConfigState.majorLength,
+                        minorInitPos: simConfigState.blockConfig.minor.pos,
+                        majorInitPos: simConfigState.blockConfig.major.pos,
+                        minorMass: 1,
+                        majorMass: simConfigState.massRatio,
+                    }}
                     blockMover={blockMover}
                     simConfigState={simConfigState}
                 />

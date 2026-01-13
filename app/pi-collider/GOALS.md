@@ -12,6 +12,11 @@
 - Lazy load the collisions the simulation can start instantly.
     - Use the buffer provided by the fly-in to make some calculations beforehand.
 - Add some information on what this is, for the user.
+- Dynamic timescale
+  - Slow down the time for short collision intervals to make them more visible.
+  - Might also require a dynamic distance scale to see something.
+  - Can already be applied at the time of collision generation.
+- Add a frame for the blocks to slide and collide.
 
 # 🟢 Done
 
