@@ -1,18 +1,14 @@
 # 🟡 Planned
 
-- Make the timescale dynamic and configurable.
-    - It needs to be modify-able during an active simulation.
+- Add loading animation for long collision calculations.
+- Make the timescale configurable at runtime.
+    - Currently, we only expose the dynamic timescale to the user, which is also set per simulation.
 - Viewport scaling
     - During their collision phase, the blocks must always be visible.
     - If a block exceeds the range, scale down the simulation to remain in the viewport.
-- Add loading animation for long collision calculations.
 - Lazy load the collisions the simulation can start instantly.
     - Use the buffer provided by the fly-in to make some calculations beforehand.
 - Add some information on what this is, for the user.
-- Dynamic timescale
-    - Slow down the time for short collision intervals to make them more visible.
-    - Might also require a dynamic distance scale to see something.
-    - Can already be applied at the time of collision generation.
 - Dynamic time and distance visualization.
     - To transfer the dynamic scaling to the viewer.
     - A scaling grid in the background for distance.
@@ -23,6 +19,9 @@
 
 # 🟢 Done
 
+- Dynamic timescale
+    - Slow down the time for short collision intervals to make them more visible.
+    - Can already be applied at the time of collision generation.
 - Add a frame for the blocks to slide and collide.
 - Animate the collision counter.
     - It jitters and grows every according to the current collision rate.

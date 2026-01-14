@@ -5,11 +5,12 @@ import { GrowCounter, GrowCounterHandle } from "@/app/pi-collider/GrowCounter"
 
 /**
  * A floating box with a counter that grows with the growth rate of its number.
- * It has a fixed height, but will visually overflow downwards as the counter grows.
- * It also floats on z-index 999 to render above the content it counts for.
+ * It has a no layout height, but will visually overflow downwards as the counter grows.
  *
  * @param props.ref
- *  A handle to increment the counter.
+ *  The handle to control the counter.
+ *  `.increment` will increment the counter and grow it.
+ *  `.update` will set the value without growth.
  */
 export function CounterBox(props: {
     ref: React.RefObject<GrowCounterHandle>
@@ -19,13 +20,13 @@ export function CounterBox(props: {
         <Box
             sx={{
                 position: "relative",
-                height: 10,
+                height: 0,
                 display: "flex",
                 justifyContent: "center",
                 overflow: "visible",
-                padding: 8,
                 width: "100%",
-                zIndex: zIndex.counter
+                zIndex: zIndex.counter,
+                bottom: 128,
             }}
         >
             <Paper
@@ -46,9 +47,9 @@ export function CounterBox(props: {
                         ["box-shadow", "background-color"],
                         {
                             duration: theme.transitions.duration.standard,
-                            easing: theme.transitions.easing.easeInOut
-                        }
-                    )
+                            easing: theme.transitions.easing.easeInOut,
+                        },
+                    ),
                 }}
                 elevation={props.isFinal ? 12 : 4}
             >

@@ -1,6 +1,6 @@
 "use client"
 import React, { useCallback, useEffect, useRef, useState } from "react"
-import { Box, Button } from "@mui/material"
+import { Box } from "@mui/material"
 import SparkCanvas from "@/app/pi-collider/BurstCanvas"
 import { randomInt } from "@/app/lib/math"
 import { BlockConfig, CollisionRecord } from "@/app/pi-collider/collisions"
@@ -9,13 +9,11 @@ import {
     calculatePosition,
     interpolatePosition,
 } from "@/app/lib/physics/movement"
-import NumbersIcon from "@mui/icons-material/Numbers"
-import NumberConfigure from "@/app/arena/world-configure/components/NumberConfigure"
-import { PlayArrow, Update } from "@mui/icons-material"
 import { CounterBox } from "@/app/pi-collider/CounterBox"
 import { GrowCounterHandle } from "@/app/pi-collider/GrowCounter"
-import { zIndex } from "@/app/lib/theme"
+import { spacing, theme, zIndex } from "@/app/lib/theme"
 import { CollisionWorkerParams } from "@/app/pi-collider/collisions.worker"
+import { Config } from "@/app/pi-collider/Config"
 
 const timeScale = 100
 const distanceScale = 30
@@ -32,7 +30,7 @@ const sparkBurstLimit = 12
 const flyOutTime = 1500
 // ↑ The time [ms] that the blocks will fly out after their final collision.
 // Sufficient to push them far beyond the viewport.
-const padding = 80
+const padding = 4 * spacing
 
 type SimulationConfig = {
     blockConfig: BlockConfig
@@ -108,90 +106,6 @@ function CollisionBox(props: {
                 blockProps={props.blockProps}
                 distanceScale={distanceScale}
             />
-        </Box>
-    )
-}
-
-/**
- * The configuration component for the simulation.
- *
- * Contains:
- *  - Digit Slider
- *      for the amount of digits of Pi to generate.
- *  - Dynamic Time Scale Slider
- *      for the dynamic slowdown.
- *  - Start Button
- *      to start the simulation with the current config.
- */
-function Config(props: {
-    digitState: [number, (v: number) => void]
-    slowdownState: [number, (v: number) => void]
-    onStart: () => void
-}) {
-    return (
-        <Box
-            sx={{
-                display: "flex",
-                alignItems: "center",
-                flexDirection: "column",
-                width: "fit-content",
-            }}
-        >
-            {/*Digit Slider*/}
-            <NumberConfigure
-                title="Digits"
-                variant={"slider"}
-                min={1}
-                // We limit this at 8 as it's a nice number, and the next nice number (10) already takes extremely long to calculate.
-                max={8}
-                icon={<NumbersIcon sx={{ fontSize: 45 }} />}
-                tooltip={
-                    <>
-                        The number of digits of π to calculate. Each additional
-                        digit increases the weight of the larger block by a
-                        factor of 100 to give the desired result.
-                        <br />
-                        <br />
-                        Be aware that every extra digit equals an increase by
-                        the factor 10 to the collision count, resulting in heavy
-                        computation load for high numbers.
-                    </>
-                }
-                sliderValue={props.digitState[0]}
-                onSliderChange={props.digitState[1]}
-                precision={0}
-            />
-            {/*Dynamic Time Slowdown Slider*/}
-            <NumberConfigure
-                title="Dynamic Slowdown"
-                variant={"slider"}
-                min={0}
-                max={3}
-                icon={<Update sx={{ fontSize: 45 }} />}
-                tooltip={
-                    <>
-                        Dynamically slow down time as the collisions per second
-                        increase, so you can see in more detail what is
-                        happening.
-                        <br />
-                        <br />
-                        This does not affect the result, but you will see the
-                        blocks moving faster or slower than they actually would.
-                    </>
-                }
-                sliderValue={props.slowdownState[0]}
-                onSliderChange={props.slowdownState[1]}
-                precision={0}
-            />
-            {/*Start Button*/}
-            <Button
-                variant={"contained"}
-                startIcon={<PlayArrow />}
-                size={"large"}
-                onClick={props.onStart}
-            >
-                Start
-            </Button>
         </Box>
     )
 }
@@ -479,15 +393,15 @@ export default function PiCollider() {
 
     return (
         <>
-            <CounterBox
-                ref={counterRef}
-                isFinal={isFinal}
+            <Config
+                digitState={[digits, setDigits]}
+                slowdownState={[dynamicSlowdown, setDynamicSlowdown]}
+                onStart={startSimulation}
             />
             <Box>
-                <Config
-                    digitState={[digits, setDigits]}
-                    slowdownState={[dynamicSlowdown, setDynamicSlowdown]}
-                    onStart={startSimulation}
+                <CounterBox
+                    ref={counterRef}
+                    isFinal={isFinal}
                 />
                 <CollisionBox
                     key={processId}
