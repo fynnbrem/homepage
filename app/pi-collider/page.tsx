@@ -11,7 +11,7 @@ import {
 } from "@/app/lib/physics/movement"
 import NumbersIcon from "@mui/icons-material/Numbers"
 import NumberConfigure from "@/app/arena/world-configure/components/NumberConfigure"
-import { PlayArrow } from "@mui/icons-material"
+import { PlayArrow, Update } from "@mui/icons-material"
 import { CounterBox } from "@/app/pi-collider/CounterBox"
 import { GrowCounterHandle } from "@/app/pi-collider/GrowCounter"
 import { zIndex } from "@/app/lib/theme"
@@ -87,7 +87,8 @@ function CollisionBox(props: {
 }) {
     return (
         <Box
-            sx={{ position: "relative" }}
+            // Leave some space to the side for the skewed sides of the blocks and frame.
+            sx={{ position: "relative", width: "95%" }}
             ref={props.ref}
         >
             {/*Make the burst canvas overlay the boxes.*/}
@@ -111,8 +112,93 @@ function CollisionBox(props: {
     )
 }
 
+/**
+ * The configuration component for the simulation.
+ *
+ * Contains:
+ *  - Digit Slider
+ *      for the amount of digits of Pi to generate.
+ *  - Dynamic Time Scale Slider
+ *      for the dynamic slowdown.
+ *  - Start Button
+ *      to start the simulation with the current config.
+ */
+function Config(props: {
+    digitState: [number, (v: number) => void]
+    slowdownState: [number, (v: number) => void]
+    onStart: () => void
+}) {
+    return (
+        <Box
+            sx={{
+                display: "flex",
+                alignItems: "center",
+                flexDirection: "column",
+                width: "fit-content",
+            }}
+        >
+            {/*Digit Slider*/}
+            <NumberConfigure
+                title="Digits"
+                variant={"slider"}
+                min={1}
+                // We limit this at 8 as it's a nice number, and the next nice number (10) already takes extremely long to calculate.
+                max={8}
+                icon={<NumbersIcon sx={{ fontSize: 45 }} />}
+                tooltip={
+                    <>
+                        The number of digits of π to calculate. Each additional
+                        digit increases the weight of the larger block by a
+                        factor of 100 to give the desired result.
+                        <br />
+                        <br />
+                        Be aware that every extra digit equals an increase by
+                        the factor 10 to the collision count, resulting in heavy
+                        computation load for high numbers.
+                    </>
+                }
+                sliderValue={props.digitState[0]}
+                onSliderChange={props.digitState[1]}
+                precision={0}
+            />
+            {/*Dynamic Time Slowdown Slider*/}
+            <NumberConfigure
+                title="Dynamic Slowdown"
+                variant={"slider"}
+                min={0}
+                max={3}
+                icon={<Update sx={{ fontSize: 45 }} />}
+                tooltip={
+                    <>
+                        Dynamically slow down time as the collisions per second
+                        increase, so you can see in more detail what is
+                        happening.
+                        <br />
+                        <br />
+                        This does not affect the result, but you will see the
+                        blocks moving faster or slower than they actually would.
+                    </>
+                }
+                sliderValue={props.slowdownState[0]}
+                onSliderChange={props.slowdownState[1]}
+                precision={0}
+            />
+            {/*Start Button*/}
+            <Button
+                variant={"contained"}
+                startIcon={<PlayArrow />}
+                size={"large"}
+                onClick={props.onStart}
+            >
+                Start
+            </Button>
+        </Box>
+    )
+}
+
 export default function PiCollider() {
     const [digits, setDigits_] = useState(4)
+    const [dynamicSlowdown, setDynamicSlowdown_] = useState(0)
     /** Whether the last collision has passed, i.e. the simulation is in its final state.*/
     const [isFinal, setIsFinal] = useState(false)
     const [processId, setProcessId] = useState(0)
@@ -158,16 +244,25 @@ export default function PiCollider() {
             setDigits_(v)
         }
     }
+    function setDynamicSlowdown(v: number) {
+        if (v >= 0) {
+            setDynamicSlowdown_(v)
+        }
+    }
 
-    /**Create a spark burst for the blocks.
-     * The final position is inferred entirely from the position of the minor blocks position `minorPos`.*/
-    const makeSpark = useCallback((minorPos: number) => {
+    /**
+     * Create a spark burst for the blocks.
+     * The final position is inferred entirely from the position of the minor blocks position `minorPos`.
+     * @param minorPos
+     *  The position of the minor block.
+     * @param left
+     *  Whether to spawn the sparks on the left or right side of the block.
+     */
+    const makeSpark = useCallback((minorPos: number, left: boolean) => {
         const config = simConfig.current
-        // Determine the actual position of the spark.
-        // Depending on whether this is a wall collision (the minor block is at position `0`)
-        // or block collision, it must be shifted to appear at the corresponding side.
+        // Determine the actual position of the spark (to the left or right of the minor block).
         let sparkPos: number
-        if (minorPos == 0) {
+        if (left) {
             sparkPos = padding
         } else {
             sparkPos = minorPos * distanceScale + padding + config.minorLength
@@ -186,10 +281,14 @@ export default function PiCollider() {
     const showCollisions = useCallback(
         // Spawn the sparks (Capped at `sparkBurstLimit` per frame).
         (count: number, minorPos: number) => {
+            // If the `minorPos` is `0` this must be a wall collision, so the sparks must spawn to the left.
+            let left = minorPos == 0
             for (let i = 0; i < Math.min(count, sparkBurstLimit); i++) {
                 // We take the position of the last collision as position of the sparks,
                 // this is usually accurate enough as when stacking happens, the collisions are also very close by.
-                makeSpark(minorPos)
+                makeSpark(minorPos, left)
+                // But we must at least alternate the side at which we spawn the sparks.
+                left = !left
             }
             // Increment the counter.
             counterRef.current.increment(count)
@@ -272,8 +371,6 @@ export default function PiCollider() {
 
             blockMover.current(minorPos, majorPos)
 
-            console.log(collisionBoxRef.current.getBoundingClientRect())
-
             if (
                 index == colls.length - 1 &&
                 elapsedTime > colls[index].time * timeScale
@@ -342,10 +439,11 @@ export default function PiCollider() {
             {
                 blockConfig: simConfig.current.blockConfig,
                 squashInterval: squashBaseInterval / timeScale,
+                transformLevel: dynamicSlowdown,
             },
             handle,
         )
-    }, [digits, animateFlyIn, resetAnimation])
+    }, [digits, dynamicSlowdown, animateFlyIn, resetAnimation])
 
     // Set up the worker for the collision calculation.
     useEffect(() => {
@@ -386,48 +484,11 @@ export default function PiCollider() {
                 isFinal={isFinal}
             />
             <Box>
-                <Box
-                    sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        flexDirection: "column",
-                        width: "fit-content",
-                    }}
-                >
-                    <NumberConfigure
-                        title="Digits"
-                        variant={"slider"}
-                        min={1}
-                        // We limit this at 8 as it's a nice number, and the next nice number (10) already takes extremely long to calculate.
-                        max={8}
-                        icon={<NumbersIcon sx={{ fontSize: 45 }} />}
-                        tooltip={
-                            <>
-                                The number of digits of π to calculate. Each
-                                additional digit increases the weight of the
-                                larger block by a factor of 100 to give the
-                                desired result.
-                                <br />
-                                <br />
-                                Be aware that every extra digit equals an
-                                increase by the factor 10 to the collision
-                                count, resulting in heavy computation load for
-                                high numbers.
-                            </>
-                        }
-                        sliderValue={digits}
-                        onSliderChange={setDigits}
-                        precision={0}
-                    />
-                    <Button
-                        variant={"contained"}
-                        startIcon={<PlayArrow />}
-                        size={"large"}
-                        onClick={startSimulation}
-                    >
-                        Start
-                    </Button>
-                </Box>
+                <Config
+                    digitState={[digits, setDigits]}
+                    slowdownState={[dynamicSlowdown, setDynamicSlowdown]}
+                    onStart={startSimulation}
+                />
                 <CollisionBox
                     key={processId}
                     ref={collisionBoxRef}

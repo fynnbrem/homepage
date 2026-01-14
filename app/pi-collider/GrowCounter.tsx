@@ -1,6 +1,7 @@
 import React, { useImperativeHandle, useState } from "react"
 import { useInterval } from "usehooks-ts"
 import { Box } from "@mui/material"
+import { randomInt } from "@/app/lib/math"
 
 const flowDecay = 0.9
 const noiseFloor = 0.05
@@ -49,13 +50,12 @@ export function GrowCounter(props: {
     // As we expect exponential magnitudes of growth, we ease it logarithmically
     // and also take it to the power of 0.8 to compensate extremely high numbers.
     const fontScale = (1 + Math.log2(flowRate * 8 + 2) / 8) ** 0.8
-
+    console.log(fontScale)
     return (
         <Box
             sx={{
                 fontSize: props.baseFontSize * fontScale,
                 lineHeight: 0.9,
-                transition: "font-size 100ms ease-out",
             }}
         >
             {value}
