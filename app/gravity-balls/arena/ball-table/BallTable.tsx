@@ -7,13 +7,13 @@ import TableContainer from "@mui/material/TableContainer"
 import TableHead from "@mui/material/TableHead"
 import TableRow from "@mui/material/TableRow"
 import Paper from "@mui/material/Paper"
-import { SmallTextField } from "@/app/arena/world-configure/components/TextFieldSpecial"
+import { SmallTextField } from "@/app/components/config/TextFieldSpecial"
 import { Updater } from "use-immer"
 import { Box, IconButton, Stack, TextField, Tooltip } from "@mui/material"
 import { Brush, DeleteOutlined } from "@mui/icons-material"
 import { BallSize, WallBounce, Weight } from "@/app/assets/Icons"
-import { BallConfig } from "@/app/arena/ball-table/model"
-import { globalBalls } from "@/app/arena/Arena"
+import { globalBalls } from "@/app/gravity-balls/arena/Arena"
+import { BallConfig } from "@/app/gravity-balls/arena/ball-table/model"
 
 const iconSize = 32
 

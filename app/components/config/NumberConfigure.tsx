@@ -8,11 +8,11 @@ import {
     Switch,
     Tooltip,
 } from "@mui/material"
-import Knob from "@/app/arena/world-configure/components/Knob"
+import Knob from "@/app/components/config/Knob"
 import { palette } from "@/app/lib/theme"
 import { radToDegree, roundTo } from "@/app/lib/math"
 import { InfoOutlined } from "@mui/icons-material"
-import { SmallTextField } from "@/app/arena/world-configure/components/TextFieldSpecial"
+import { SmallTextField } from "@/app/components/config/TextFieldSpecial"
 
 /**The slider. Requires the transformed values.*/
 function Slider(props: {

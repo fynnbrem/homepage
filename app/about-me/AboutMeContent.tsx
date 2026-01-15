@@ -1,7 +1,7 @@
 import Image from "next/image"
 import { Box, Link, Typography } from "@mui/material"
 import { theme } from "@/app/lib/theme"
-import ExternalLink from "@/app/components/ExternalLink"
+import ExternalLink from "@/app/components/other/ExternalLink"
 
 export default function AboutMeContent() {
     return (

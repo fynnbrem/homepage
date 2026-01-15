@@ -14,7 +14,7 @@ import {
     updateBallPath,
     VoidBall,
 } from "@/app/lib/physics/ball-movement/model"
-import ArenaContent from "@/app/arena/ArenaContent"
+import ArenaContent from "@/app/gravity-balls/arena/ArenaContent"
 
 /**Freezes the entire simulation.*/
 const freeze = false

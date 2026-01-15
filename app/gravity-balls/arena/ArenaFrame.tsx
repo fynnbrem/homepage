@@ -1,9 +1,9 @@
 import { alpha, Box, Paper, Stack } from "@mui/material"
-import { WorldConfigure } from "@/app/arena/world-configure/WorldConfigure"
+import { WorldConfigure } from "@/app/gravity-balls/arena/WorldConfigure"
 import React from "react"
 import { spacing, theme } from "@/app/lib/theme"
-import BallTableFrame from "@/app/arena/ball-table/BallTableFrame"
-import Arena from "@/app/arena/Arena"
+import Arena from "@/app/gravity-balls/arena/Arena"
+import BallTableFrame from "@/app/gravity-balls/arena/ball-table/BallTableFrame"
 
 const elevation = 4
 

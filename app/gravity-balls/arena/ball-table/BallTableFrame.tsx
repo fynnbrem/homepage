@@ -1,14 +1,14 @@
 import { Button, Stack, Tooltip } from "@mui/material"
 import { Add } from "@mui/icons-material"
 import React from "react"
-import BallTable from "@/app/arena/ball-table/BallTable"
 import { useImmer } from "use-immer"
 import {
     configFromBall,
     getNewBall,
     getRandomBall,
-} from "@/app/arena/ball-table/model"
-import { globalBalls } from "@/app/arena/Arena"
+} from "@/app/gravity-balls/arena/ball-table/model"
+import { globalBalls } from "@/app/gravity-balls/arena/Arena"
+import BallTable from "@/app/gravity-balls/arena/ball-table/BallTable"
 
 /**The frame for the ball table.
  * In addition to the `<BallTable>`, this also contains an "add" button to create new balls.

@@ -7,14 +7,13 @@ import {
     Tooltip,
     Typography,
 } from "@mui/material"
-import NumberConfigure from "@/app/arena/world-configure/components/NumberConfigure"
+import NumberConfigure from "@/app/components/config/NumberConfigure"
 import NumbersIcon from "@mui/icons-material/Numbers"
 import { ExpandMore, PlayArrow, Update } from "@mui/icons-material"
 import { theme, zIndex } from "@/app/lib/theme"
-import React, { useState } from "react"
-import { useTimeout } from "usehooks-ts"
-import ExternalLink from "@/app/components/ExternalLink"
-import ExpandablePaper from "@/app/components/ExpandablePaper"
+import React from "react"
+import ExternalLink from "@/app/components/other/ExternalLink"
+import ExpandablePaper from "@/app/components/other/ExpandablePaper"
 type Props = {
     digitState: [number, (v: number) => void]
     slowdownState: [number, (v: number) => void]
@@ -58,7 +57,14 @@ export function Config(props: Props) {
                 <ConfigContent {...props} />
             </Paper>
             <ExpandablePaper
-                header={<Typography variant={"h4"} fontWeight={"bold"}>About</Typography>}
+                header={
+                    <Typography
+                        variant={"h4"}
+                        fontWeight={"bold"}
+                    >
+                        About
+                    </Typography>
+                }
                 sx={{
                     background: alpha(theme.palette.background.default, 0.84),
                     borderRadius: 8,

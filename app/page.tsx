@@ -1,11 +1,5 @@
 "use client"
-import React from "react"
-import ArenaFrame from "@/app/arena/ArenaFrame"
+import GravityBalls from "@/app/gravity-balls/page"
 
-export default function Home() {
-    return (
-        <>
-            <ArenaFrame />
-        </>
-    )
-}
+const Home = GravityBalls
+export default Home

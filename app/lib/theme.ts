@@ -19,6 +19,7 @@ export const theme = createTheme({
 export const zIndex = {
     counter: 20,
     badge: 90,
+    navBar: 80,
     aboutMe: 100,
 }
 
