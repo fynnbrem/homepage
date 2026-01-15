@@ -17,7 +17,7 @@ export const theme = createTheme({
 })
 
 export const zIndex = {
-    counter: 10,
+    counter: 20,
     badge: 90,
     aboutMe: 100,
 }

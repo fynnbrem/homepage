@@ -1,6 +1,6 @@
 import React, { Ref, useImperativeHandle, useMemo, useRef } from "react"
 import { alpha, Box, darken, lighten } from "@mui/material"
-import { orange } from "@mui/material/colors"
+import { grey, orange } from "@mui/material/colors"
 import styles from "./Cube.module.css"
 import { theme } from "@/app/lib/theme"
 
@@ -37,6 +37,7 @@ function Block(props: {
     initialPos: number
     baseColor: string
     background: string
+    visible: boolean
 }) {
     return (
         <Box
@@ -53,6 +54,8 @@ function Block(props: {
                 justifyContent: "center",
                 alignItems: "center",
                 boxShadow: "0 10px 25px rgba(0, 0, 0, 0.25)",
+                opacity: props.visible ? 1 : 0,
+                transition: "opacity 500ms ease",
             }}
             // Apply the escaping side faces.
             className={styles.cube}
@@ -94,7 +97,7 @@ function SlideFrame({ blockProps }: { blockProps: BlockProps }) {
                     width: "100%",
                     height: 18,
                     position: "absolute",
-                    top: blockProps.majorLength - 18,
+                    bottom: 0,
                     boxShadow: `0 16px 16px ${theme.palette.background.default}`,
                 }}
             />
@@ -120,6 +123,7 @@ export function Blocks(props: {
     blockProps: BlockProps
     padding: number
     distanceScale: number
+    active: boolean
 }) {
     const minorBlockRef = useRef<HTMLDivElement>(null!)
     const majorBlockRef = useRef<HTMLDivElement>(null!)
@@ -145,13 +149,14 @@ export function Blocks(props: {
             sx={{
                 // Relative position to enable anchoring.
                 position: "relative",
-                height: Math.max(bp.minorLength, bp.majorLength),
+                height: bp.majorLength,
                 // We use px as unit so the position and canvas calculations stay straightforward.
                 margin: `${props.padding}px`,
                 marginRight: 0,
                 fontFamily: '"Cambria Math", "Cambria", serif',
                 fontSize: 32,
                 textShadow: "2px 2px 2px rgba(0, 0, 0, 0.5)",
+                transition: "height 500ms ease-in-out",
             }}
         >
             <SlideFrame blockProps={bp} />
@@ -163,6 +168,7 @@ export function Blocks(props: {
                 initialPos={bp.minorInitPos * props.distanceScale}
                 baseColor={colors.minor[0]}
                 background={colors.minor[1]}
+                visible={props.active}
             />
 
             <Block
@@ -174,6 +180,7 @@ export function Blocks(props: {
                 }
                 baseColor={colors.major[0]}
                 background={colors.major[1]}
+                visible={props.active}
             />
         </Box>
     )

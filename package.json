@@ -15,6 +15,7 @@
     "@mui/icons-material": "^6.4.5",
     "@mui/material": "^6.4.5",
     "@pixi/react": "^8.0.0",
+    "comlink": "^4.4.2",
     "gradient-path": "^2.3.0",
     "math.gl": "^4.1.0",
     "next": "^15.1.7",

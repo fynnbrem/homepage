@@ -11,9 +11,18 @@ import {
 } from "@/app/lib/physics/movement"
 import { CounterBox } from "@/app/pi-collider/CounterBox"
 import { GrowCounterHandle } from "@/app/pi-collider/GrowCounter"
-import { spacing, theme, zIndex } from "@/app/lib/theme"
-import { CollisionWorkerParams } from "@/app/pi-collider/collisions.worker"
+import { spacing, zIndex } from "@/app/lib/theme"
 import { Config } from "@/app/pi-collider/Config"
+import { useNumberState } from "@/app/lib/Hooks"
+import { wrap } from "comlink"
+import { ResolveAfterDuration } from "@/app/lib/lib"
+import { CollisionApi } from "@/app/pi-collider/collisions.worker"
+
+/**
+ * The minimum time the calculation of a full collision simulation must take.
+ * This is to reduce visual jittering for short calculations.
+ */
+const minCalculationTime = 500
 
 const timeScale = 100
 const distanceScale = 30
@@ -82,6 +91,7 @@ function CollisionBox(props: {
     blockProps: BlockProps
     blockMover: React.RefObject<BlockMover>
     simConfigState: SimulationConfig
+    active: boolean
 }) {
     return (
         <Box
@@ -96,7 +106,7 @@ function CollisionBox(props: {
                     width: "100%",
                     height: props.blockProps.majorLength + 2 * padding,
                     position: "absolute",
-                    zIndex: zIndex.counter - 1,
+                    zIndex: 1,
                     top: -padding,
                 }}
             />
@@ -105,22 +115,24 @@ function CollisionBox(props: {
                 blockMover={props.blockMover}
                 blockProps={props.blockProps}
                 distanceScale={distanceScale}
+                active={props.active}
             />
         </Box>
     )
 }
 
 export default function PiCollider() {
-    const [digits, setDigits_] = useState(4)
-    const [dynamicSlowdown, setDynamicSlowdown_] = useState(0)
+    const [digits, setDigits] = useNumberState(4, 1)
+    const [dynamicSlowdown, setDynamicSlowdown] = useNumberState(0, 0)
+    const [isGenerating, setIsGenerating] = useState(false)
     /** Whether the last collision has passed, i.e. the simulation is in its final state.*/
     const [isFinal, setIsFinal] = useState(false)
-    const [processId, setProcessId] = useState(0)
     const blockMover = useRef<BlockMover>(null!)
     const makeSparkRef = useRef<(x: number, y: number) => void>(null!)
     const counterRef = useRef<GrowCounterHandle>(null!)
     const rafId = useRef<number | null>(null)
     const collisionBoxRef = useRef<HTMLDivElement>(null!)
+    const collisionApiRef = useRef<CollisionApi>(null!)
 
     const collsRef = useRef<CollisionRecord[]>([])
     const startTimeRef = useRef(0)
@@ -130,9 +142,6 @@ export default function PiCollider() {
 
     const simConfig = useRef(getSimulationConfig(100 ** (digits - 1)))
     const [simConfigState, setSimConfigState] = useState(simConfig.current)
-
-    const workerRef = useRef<Worker | null>(null)
-    const workerHandler = useRef<(_: CollisionRecord[]) => void | null>(null)
 
     /** Resets all properties related to the animation.
      *  - Resets the counter and final state.
@@ -144,25 +153,6 @@ export default function PiCollider() {
         setIsFinal(false)
         cancelAnimation()
     }, [])
-
-    function runWorker(
-        params: CollisionWorkerParams,
-        callback: (_: CollisionRecord[]) => void,
-    ) {
-        workerHandler.current = callback
-        workerRef.current?.postMessage(params)
-    }
-
-    function setDigits(v: number) {
-        if (v >= 1) {
-            setDigits_(v)
-        }
-    }
-    function setDynamicSlowdown(v: number) {
-        if (v >= 0) {
-            setDynamicSlowdown_(v)
-        }
-    }
 
     /**
      * Create a spark burst for the blocks.
@@ -335,6 +325,7 @@ export default function PiCollider() {
     }
 
     const startSimulation = useCallback(() => {
+        setIsGenerating(true)
         resetAnimation()
         // Set up the simulation.
         const massRatioNew = 100 ** (digits - 1)
@@ -342,21 +333,22 @@ export default function PiCollider() {
         setSimConfigState(simConfig.current)
 
         function handle(result: CollisionRecord[]) {
-            setProcessId((v) => v + 1)
             // Run the simulation.
             collsRef.current = result
             startTimeRef.current = performance.now()
+            setIsGenerating(false)
             // Initialize the animation loop.
             rafId.current = requestAnimationFrame(animateFlyIn)
         }
-        runWorker(
-            {
-                blockConfig: simConfig.current.blockConfig,
-                squashInterval: squashBaseInterval / timeScale,
-                transformLevel: dynamicSlowdown,
-            },
-            handle,
-        )
+        const calculate = collisionApiRef.current.calculate
+        const params = {
+            blockConfig: simConfig.current.blockConfig,
+            squashInterval: squashBaseInterval / timeScale,
+            transformLevel: dynamicSlowdown,
+        }
+        // We add an artificial delay before resolving the
+        // calculation to reduce visual jitter caused by the loading state.
+        ResolveAfterDuration(minCalculationTime, calculate, params).then(handle)
     }, [digits, dynamicSlowdown, animateFlyIn, resetAnimation])
 
     // Set up the worker for the collision calculation.
@@ -365,16 +357,10 @@ export default function PiCollider() {
             new URL("./collisions.worker.ts", import.meta.url),
             { type: "module" },
         )
-        worker.onmessage = (event: MessageEvent<CollisionRecord[]>) => {
-            const handler = workerHandler.current
-            if (handler) handler(event.data)
-        }
-
-        workerRef.current = worker
+        collisionApiRef.current = wrap<CollisionApi>(worker)
 
         return () => {
             worker.terminate()
-            workerRef.current = null
         }
     }, [])
 
@@ -397,14 +383,14 @@ export default function PiCollider() {
                 digitState={[digits, setDigits]}
                 slowdownState={[dynamicSlowdown, setDynamicSlowdown]}
                 onStart={startSimulation}
+                isGenerating={isGenerating}
             />
-            <Box>
+            <Box sx={{ paddingTop: 4 }}>
                 <CounterBox
                     ref={counterRef}
                     isFinal={isFinal}
                 />
                 <CollisionBox
-                    key={processId}
                     ref={collisionBoxRef}
                     makeSpark={makeSparkRef}
                     blockProps={{
@@ -417,6 +403,7 @@ export default function PiCollider() {
                     }}
                     blockMover={blockMover}
                     simConfigState={simConfigState}
+                    active={!isGenerating}
                 />
             </Box>
         </>

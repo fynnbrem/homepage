@@ -1,4 +1,8 @@
-import { BlockConfig, simulateCollisions } from "@/app/pi-collider/collisions"
+import {
+    BlockConfig,
+    CollisionRecord,
+    simulateCollisions,
+} from "@/app/pi-collider/collisions"
 
 export type CollisionWorkerParams = {
     blockConfig: BlockConfig
@@ -6,11 +10,20 @@ export type CollisionWorkerParams = {
     transformLevel: number
 }
 
-self.onmessage = (event: MessageEvent<CollisionWorkerParams>) => {
-    const result = simulateCollisions(
-        event.data.blockConfig,
-        event.data.squashInterval,
-        event.data.transformLevel,
-    )
-    self.postMessage(result)
+export type CollisionApi = {
+    calculate: (p: CollisionWorkerParams) => Promise<CollisionRecord[]>
 }
+
+import { expose } from "comlink"
+
+const api = {
+    calculate(params: CollisionWorkerParams): CollisionRecord[] {
+        return simulateCollisions(
+            params.blockConfig,
+            params.squashInterval,
+            params.transformLevel,
+        )
+    },
+}
+
+expose(api)

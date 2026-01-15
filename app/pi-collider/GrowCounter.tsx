@@ -50,7 +50,6 @@ export function GrowCounter(props: {
     // As we expect exponential magnitudes of growth, we ease it logarithmically
     // and also take it to the power of 0.8 to compensate extremely high numbers.
     const fontScale = (1 + Math.log2(flowRate * 8 + 2) / 8) ** 0.8
-    console.log(fontScale)
     return (
         <Box
             sx={{

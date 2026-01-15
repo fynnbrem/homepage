@@ -28,5 +28,27 @@ body {
     }
 }
 
+/* Inline code (but not code blocks) */
+code {
+    /* Feel free to tweak these to match your palette */
+    --code-bg: rgba(239, 108, 0, 0.14);
+    --code-border: rgba(239, 108, 0, 0.35);
+    --code-fg: var(--foreground);
+
+    color: var(--code-fg);
+    background: var(--code-bg);
+    border: 1px solid var(--code-border);
+
+    padding: 0.1em 0.3em;
+    border-radius: 0.4em;
+
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: 0.95em;
+    line-height: 1;
+
+    vertical-align: baseline;
+}
+
+
 
 

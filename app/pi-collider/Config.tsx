@@ -1,10 +1,29 @@
-import { alpha, IconButton, Paper, Stack, Tooltip } from "@mui/material"
+import {
+    alpha,
+    CircularProgress,
+    IconButton,
+    Paper,
+    Stack,
+    Tooltip,
+    Typography,
+} from "@mui/material"
 import NumberConfigure from "@/app/arena/world-configure/components/NumberConfigure"
 import NumbersIcon from "@mui/icons-material/Numbers"
-import { PlayArrow, Update } from "@mui/icons-material"
-import { theme } from "@/app/lib/theme"
-import React from "react"
-import { WorldConfigure } from "@/app/arena/world-configure/WorldConfigure"
+import { ExpandMore, PlayArrow, Update } from "@mui/icons-material"
+import { theme, zIndex } from "@/app/lib/theme"
+import React, { useState } from "react"
+import { useTimeout } from "usehooks-ts"
+import ExternalLink from "@/app/components/ExternalLink"
+import ExpandablePaper from "@/app/components/ExpandablePaper"
+type Props = {
+    digitState: [number, (v: number) => void]
+    slowdownState: [number, (v: number) => void]
+    isGenerating: boolean
+    onStart: () => void
+}
+
+const videoLink = "https://youtu.be/6dTyOl1fmDo?si=Ed73V15s3YyJvCSH"
+const elevation = 4
 
 /**
  * The configuration component for the simulation.
@@ -17,35 +36,75 @@ import { WorldConfigure } from "@/app/arena/world-configure/WorldConfigure"
  *  - Start Button
  *      to start the simulation with the current config.
  */
-export function Config(props: {
-    digitState: [number, (v: number) => void]
-    slowdownState: [number, (v: number) => void]
-    onStart: () => void
-}) {
+export function Config(props: Props) {
     return (
-        <Paper
-            sx={{
-                background: alpha(theme.palette.background.default, 0.6),
-                borderRadius: 8,
-                padding: 1,
-                height: "100%",
-                width: "fit-content",
-                marginTop: 4,
-                marginLeft: 4,
-                marginBottom: 2,
-                            }}
-            elevation={4}
+        <Stack
+            direction="row"
+            justifyContent={"space-between"}
+            position={"relative"}
         >
-            <ConfigContent {...props}/>
-        </Paper>
+            <Paper
+                sx={{
+                    background: alpha(theme.palette.background.default, 0.6),
+                    borderRadius: 8,
+                    padding: 1,
+                    height: "100%",
+                    width: "fit-content",
+                    margin: 4,
+                    marginBottom: 2,
+                }}
+                elevation={elevation}
+            >
+                <ConfigContent {...props} />
+            </Paper>
+            <ExpandablePaper
+                header={<Typography variant={"h4"} fontWeight={"bold"}>About</Typography>}
+                sx={{
+                    background: alpha(theme.palette.background.default, 0.84),
+                    borderRadius: 8,
+                    padding: 2,
+                    width: 600,
+                    height: "fit-content",
+                    margin: 4,
+                    marginBottom: 2,
+                    right: 0,
+                    position: "absolute",
+                    zIndex: zIndex.counter - 1,
+                }}
+                elevation={elevation}
+                iconSize={32}
+            >
+                While the explanation behind this quite complicated, it is
+                proven that when you have two blocks of which the mass ratio can
+                be expressed by{" "}
+                <code>
+                    100<sup>n</sup>
+                </code>
+                , you get the first <code>n</code> digits of <code>π</code>. For
+                this to work, we start with the large block moving onto the
+                small block and have the small block standing still.
+                <br />
+                <br />
+                We stop only once no more collisions are possible (When the
+                large block escapes with a higher velocity than the small block
+                can catch up with).
+                <br />
+                This system assumes lossless energy transfer between the blocks
+                and no friction. The slowdown at the end is just so they stop at
+                all.
+                <br />
+                <br />
+                For a more detailed breakdown, watch{" "}
+                <ExternalLink href={videoLink}>
+                    3Blue1Brown's Video
+                </ExternalLink>{" "}
+                on it.
+            </ExpandablePaper>
+        </Stack>
     )
 }
 
-function ConfigContent(props: {
-    digitState: [number, (v: number) => void]
-    slowdownState: [number, (v: number) => void]
-    onStart: () => void
-}) {
+function ConfigContent(props: Props) {
     return (
         <Stack
             direction={"row"}
@@ -111,6 +170,7 @@ function ConfigContent(props: {
                 title={"Restart the simulation with the current configuration."}
             >
                 <IconButton
+                    disabled={props.isGenerating}
                     size={"large"}
                     onClick={props.onStart}
                     sx={{
@@ -120,10 +180,17 @@ function ConfigContent(props: {
                         "&:hover": {
                             backgroundColor: theme.palette.primary.dark,
                         },
+                        "&.Mui-disabled": {
+                            backgroundColor: "action.disabledBackground",
+                            color: "action.disabled",
+                        },
                         margin: 2,
                     }}
                     color={"secondary"}
                 >
+                    {props.isGenerating && (
+                        <CircularProgress sx={{ position: "absolute" }} />
+                    )}
                     <PlayArrow fontSize={"large"} />
                 </IconButton>
             </Tooltip>

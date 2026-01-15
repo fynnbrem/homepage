@@ -1,6 +1,7 @@
 # 🟡 Planned
 
 - Add loading animation for long collision calculations.
+  - Also add fade-out and fade-in animations for when the animation cancels and starts.
 - Make the timescale configurable at runtime.
     - Currently, we only expose the dynamic timescale to the user, which is also set per simulation.
 - Viewport scaling
@@ -14,7 +15,7 @@
     - A scaling grid in the background for distance.
     - A timer for the time.
 - Evaluate the Epsilon value.
-    - The closest the major block comes to the wall (It's distance to the wall minus the minor block length).
+    - The closest the major block comes to the wall (Its distance to the wall minus the minor block length).
     - Approaches zero for high collision counts.
 
 # 🟢 Done
