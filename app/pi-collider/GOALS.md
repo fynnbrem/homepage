@@ -1,7 +1,6 @@
 # 🟡 Planned
 
-- Add loading animation for long collision calculations.
-    - Also add fade-out and fade-in animations for when the animation cancels and starts.
+
 - Make the timescale configurable at runtime.
     - Currently, we only expose the dynamic timescale to the user, which is also set per simulation.
 - Viewport scaling
@@ -9,7 +8,6 @@
     - If a block exceeds the range, scale down the simulation to remain in the viewport.
 - Lazy load the collisions the simulation can start instantly.
     - Use the buffer provided by the fly-in to make some calculations beforehand.
-- Add some information on what this is, for the user.
 - Dynamic time and distance visualization.
     - To transfer the dynamic scaling to the viewer.
     - A scaling grid in the background for distance.
@@ -19,7 +17,9 @@
     - Approaches zero for high collision counts.
 
 # 🟢 Done
-
+- Add loading animation for long collision calculations.
+    - Also add fade-out and fade-in animations for when the animation cancels and starts.
+- Add some information on what this is, for the user.
 - Dynamic timescale
     - Slow down the time for short collision intervals to make them more visible.
     - Can already be applied at the time of collision generation.
