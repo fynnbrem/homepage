@@ -7,7 +7,8 @@ import { grey } from "@mui/material/colors"
 import DynamicBackground from "@/app/assets/DynamicBackground"
 import React, { Suspense } from "react"
 import AboutMe from "@/app/about-me/AboutMe"
-import GithubBadge from "@/app/components/GithubBadge"
+import GithubBadge from "@/app/components/other/GithubBadge"
+import NavBar from "@/app/NavBar"
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -45,6 +46,7 @@ export default function RootLayout({
                 className={`${geistSans.variable} ${geistMono.variable} antialiased`}
             >
                 <Providers>
+                    <NavBar />
                     {children}
                     <Suspense>
                         <AboutMe />
