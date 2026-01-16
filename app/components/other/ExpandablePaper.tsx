@@ -1,5 +1,5 @@
 import * as React from "react"
-import { Paper, ButtonBase, Box, Collapse, SxProps, Stack } from "@mui/material"
+import { Box, ButtonBase, Collapse, Paper, Stack, SxProps } from "@mui/material"
 import { ExpandMore } from "@mui/icons-material"
 
 /**
@@ -63,7 +63,7 @@ export default function ExpandablePaper(props: {
                             transform:
                                 expanded ? "rotate(180deg)" : "rotate(0deg)",
                             color: "text.secondary",
-                            fontSize: props.iconSize
+                            fontSize: props.iconSize,
                         }}
                     />
                 </Stack>

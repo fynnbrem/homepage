@@ -21,6 +21,6 @@ export function interpolatePosition(
     endTime: number,
     currentTime: number,
 ): number {
-    const relTime =  (currentTime - startTime) / (endTime - startTime)
+    const relTime = (currentTime - startTime) / (endTime - startTime)
     return startPos + (endPos - startPos) * relTime
 }

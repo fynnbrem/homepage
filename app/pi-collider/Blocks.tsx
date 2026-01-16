@@ -1,6 +1,6 @@
 import React, { Ref, useImperativeHandle, useMemo, useRef } from "react"
 import { alpha, Box, darken, lighten } from "@mui/material"
-import { grey, orange } from "@mui/material/colors"
+import { orange } from "@mui/material/colors"
 import styles from "./Cube.module.css"
 import { theme } from "@/app/lib/theme"
 

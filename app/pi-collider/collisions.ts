@@ -1,5 +1,4 @@
 import { getCollisionVelocityDelta } from "@/app/lib/physics/collision"
-import { block } from "sharp"
 
 /**A snapshot of the block states at the point of a collision.
  *

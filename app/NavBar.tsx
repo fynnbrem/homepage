@@ -1,8 +1,5 @@
 "use client"
-import {
-    Button,
-    Stack,
-} from "@mui/material"
+import { Button, Stack } from "@mui/material"
 import Link from "next/link"
 import { zIndex } from "@/app/lib/theme"
 import { BallCollision, PiCollider } from "@/app/assets/Icons"

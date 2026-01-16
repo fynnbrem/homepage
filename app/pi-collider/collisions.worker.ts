@@ -3,6 +3,7 @@ import {
     CollisionRecord,
     simulateCollisions,
 } from "@/app/pi-collider/collisions"
+import { expose } from "comlink"
 
 export type CollisionWorkerParams = {
     blockConfig: BlockConfig
@@ -13,8 +14,6 @@ export type CollisionWorkerParams = {
 export type CollisionApi = {
     calculate: (p: CollisionWorkerParams) => Promise<CollisionRecord[]>
 }
-
-import { expose } from "comlink"
 
 const api = {
     calculate(params: CollisionWorkerParams): CollisionRecord[] {

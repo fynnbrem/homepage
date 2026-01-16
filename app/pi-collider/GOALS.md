@@ -1,7 +1,7 @@
 # 🟡 Planned
 
 - Add loading animation for long collision calculations.
-  - Also add fade-out and fade-in animations for when the animation cancels and starts.
+    - Also add fade-out and fade-in animations for when the animation cancels and starts.
 - Make the timescale configurable at runtime.
     - Currently, we only expose the dynamic timescale to the user, which is also set per simulation.
 - Viewport scaling

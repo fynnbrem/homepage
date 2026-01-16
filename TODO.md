@@ -43,20 +43,20 @@
 - Interaction: Dynamic Arena Size
     - Collide balls into the borders of the arena when shrinking.
 - Content: About Me
-  - Also add into URL
-  
+    - Also add into URL
+
 # 🟡 Planned
 
 - Interaction: Clicking increases pointer gravity.
-  - Holding the mouse button down while in the arena increases the gravity 10x.
-  - Also increases the intensity of the pointer light.
-  - Add a note to the point gravity info box that you can do that.
-  - Right-click causes negative gravity.
+    - Holding the mouse button down while in the arena increases the gravity 10x.
+    - Also increases the intensity of the pointer light.
+    - Add a note to the point gravity info box that you can do that.
+    - Right-click causes negative gravity.
 - Visuals: Adaptive Layout
-  - We need an entirely new layout for mobile devices.
+    - We need an entirely new layout for mobile devices.
 - Visuals: Layout scaling.
-  - Currently, the components do not scale, 
-    resulting a notably small view on 4k monitors and an overflow on 720p monitors.
+    - Currently, the components do not scale,
+      resulting a notably small view on 4k monitors and an overflow on 720p monitors.
 - Interaction: Better Collision
     - Collision Interpolation (For high speed collisions)
     - Multi Collision (Wall + Ball Collision)

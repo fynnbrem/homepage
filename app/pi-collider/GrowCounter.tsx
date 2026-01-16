@@ -1,7 +1,6 @@
 import React, { useImperativeHandle, useState } from "react"
 import { useInterval } from "usehooks-ts"
 import { Box } from "@mui/material"
-import { randomInt } from "@/app/lib/math"
 
 const flowDecay = 0.9
 const noiseFloor = 0.05

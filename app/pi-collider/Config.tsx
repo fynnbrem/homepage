@@ -9,11 +9,12 @@ import {
 } from "@mui/material"
 import NumberConfigure from "@/app/components/config/NumberConfigure"
 import NumbersIcon from "@mui/icons-material/Numbers"
-import { ExpandMore, PlayArrow, Update } from "@mui/icons-material"
+import { PlayArrow, Update } from "@mui/icons-material"
 import { theme, zIndex } from "@/app/lib/theme"
 import React from "react"
 import ExternalLink from "@/app/components/other/ExternalLink"
 import ExpandablePaper from "@/app/components/other/ExpandablePaper"
+
 type Props = {
     digitState: [number, (v: number) => void]
     slowdownState: [number, (v: number) => void]

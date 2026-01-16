@@ -5,13 +5,10 @@ import SparkCanvas from "@/app/pi-collider/BurstCanvas"
 import { randomInt } from "@/app/lib/math"
 import { BlockConfig, CollisionRecord } from "@/app/pi-collider/collisions"
 import { BlockMover, BlockProps, Blocks } from "@/app/pi-collider/Blocks"
-import {
-    calculatePosition,
-    interpolatePosition,
-} from "@/app/lib/physics/movement"
+import { calculatePosition, interpolatePosition } from "@/app/lib/physics/movement"
 import { CounterBox } from "@/app/pi-collider/CounterBox"
 import { GrowCounterHandle } from "@/app/pi-collider/GrowCounter"
-import { spacing, zIndex } from "@/app/lib/theme"
+import { spacing } from "@/app/lib/theme"
 import { Config } from "@/app/pi-collider/Config"
 import { useNumberState } from "@/app/lib/Hooks"
 import { wrap } from "comlink"
