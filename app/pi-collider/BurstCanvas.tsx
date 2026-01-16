@@ -143,7 +143,7 @@ export default function BurstCanvas(props: {
         }
 
         requestAnimationFrame(animate)
-    }, [])
+    }, [bursts])
 
     useImperativeHandle(
         props.ref,

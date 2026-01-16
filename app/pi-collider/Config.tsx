@@ -103,7 +103,7 @@ export function Config(props: Props) {
                 <br />
                 For a more detailed breakdown, watch{" "}
                 <ExternalLink href={videoLink}>
-                    3Blue1Brown's Video
+                    3Blue1Brown&apos;s Video
                 </ExternalLink>{" "}
                 on it.
             </ExpandablePaper>

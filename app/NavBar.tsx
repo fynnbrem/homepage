@@ -77,7 +77,7 @@ function NavButton(props: {
                 paddingLeft: padding,
                 paddingRight: padding,
                 position: "relative",
-                zIndex: props.active ? zIndex.navBar - 1 : zIndex.navBar,
+                zIndex: props.active ? zIndex.navBar + 1 : zIndex.navBar,
             }}
             startIcon={props.icon}
         >

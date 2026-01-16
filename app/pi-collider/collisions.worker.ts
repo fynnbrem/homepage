@@ -15,6 +15,8 @@ export type CollisionApi = {
     calculate: (p: CollisionWorkerParams) => Promise<CollisionRecord[]>
 }
 
+// We use this function in `pi-collider/page` in the collision worker.
+// noinspection JSUnusedGlobalSymbols
 const api = {
     calculate(params: CollisionWorkerParams): CollisionRecord[] {
         return simulateCollisions(
