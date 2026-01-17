@@ -24,6 +24,7 @@ type Props = {
 
 const videoLink = "https://youtu.be/6dTyOl1fmDo?si=Ed73V15s3YyJvCSH"
 const elevation = 4
+const background = alpha(theme.palette.background.default, 0.84)
 
 /**
  * The configuration component for the simulation.
@@ -45,7 +46,7 @@ export function Config(props: Props) {
         >
             <Paper
                 sx={{
-                    background: alpha(theme.palette.background.default, 0.6),
+                    background: background,
                     borderRadius: 8,
                     padding: 1,
                     height: "100%",
@@ -67,7 +68,7 @@ export function Config(props: Props) {
                     </Typography>
                 }
                 sx={{
-                    background: alpha(theme.palette.background.default, 0.84),
+                    background: background,
                     borderRadius: 8,
                     padding: 2,
                     width: 600,
