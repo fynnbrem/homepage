@@ -8,6 +8,9 @@ import React, { Suspense } from "react"
 import AboutMe from "@/app/about-me/AboutMe"
 import GithubBadge from "@/app/components/other/GithubBadge"
 import NavBar from "@/app/NavBar"
+import { Link } from "@mui/material"
+import { zIndex } from "@/app/lib/theme"
+import NextLink from "next/link"
 
 export const metadata: Metadata = {
     title: "Fynn's Quest",
@@ -41,9 +44,29 @@ export default function RootLayout({
                     <GithubBadge
                         link={"https://github.com/fynnbrem/homepage"}
                     />
+                    <LegalNoticeLink />
                 </Providers>
                 <DynamicBackground color={grey[800]} />
             </body>
         </html>
+    )
+}
+
+function LegalNoticeLink() {
+    return (
+        <Link
+            href={"legal-notice"}
+            sx={{
+                position: "absolute",
+                zIndex: zIndex.badge,
+                bottom: 0,
+                left: 4,
+                fontSize: "small",
+            }}
+            color={"secondary"}
+            component={NextLink}
+        >
+            Legal Notice
+        </Link>
     )
 }
